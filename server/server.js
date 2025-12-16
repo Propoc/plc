@@ -57,6 +57,8 @@ app.get("/stream", (req, res) => {
     "Access-Control-Allow-Origin": "*",
   });
 
+  res.flushHeaders();
+
   const client = { res, topics };
   clients.push(client);
 
@@ -91,7 +93,7 @@ const device = awsIot.device({
   keyPath: path.join(__dirname, "device-private.pem"),
   certPath: path.join(__dirname, "device-cert.pem"),
   caPath: path.join(__dirname, "AmazonRootCA1.pem"),
-  clientId: "pc-backend-1",
+  clientId: `pc-backend-1-${randomId}`,
   host: "a33p897p55tbkg-ats.iot.eu-central-1.amazonaws.com",
   protocol: "mqtts",
   port: 8883
