@@ -9,7 +9,7 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 
-const PORT = 3456;
+const PORT = 4000;
 
 // CORS configuration
 const corsOptions = {
