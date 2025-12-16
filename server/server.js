@@ -19,52 +19,31 @@ const corsOptions = {
 }
 app.use(cors(corsOptions));
 
-// Request logger (simplified)
-app.use((req, res, next) => {
-    if (!req.url.startsWith('/socket.io/')) {
-        console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    }
-    next();
-});
 
-// Static file serving
-app.use(express.static(path.join(__dirname, '../build')));
 
-// API route
+// API route Catchers
 app.get('/api', (req, res) => {
     res.json({
         status: 'online',
-        message: 'Card Game Server',
+        message: 'This is the backend test',
         port: PORT,
-        socketio: 'enabled'
     });
 });
 
-// Test route to verify server is working
 app.get('/test', (req, res) => {
     res.json({ 
         message: 'Server is working!',
-        timestamp: new Date().toISOString()
     });
-});
-
-// React app catch-all - only for non-API, non-static, non-socket.io requests
-app.get('*', (req, res) => {
-    console.log('📄 Serving React app for:', req.path);
-    res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
 
 
 // --------------------------------------------------
-// SSE CLIENTS
+// SSE stream catch
 // --------------------------------------------------
 let clients = [];
 const SUBSCRIPTIONS = ["tmsig-1/data"];
 
-// --------------------------------------------------
-// SSE STREAM
-// --------------------------------------------------
 app.get("/stream", (req, res) => {
   const topics = (req.query.topics || "")
     .split(",")
@@ -78,10 +57,13 @@ app.get("/stream", (req, res) => {
     "Access-Control-Allow-Origin": "*",
   });
 
+  res.flushHeaders();
+
   const client = { res, topics };
   clients.push(client);
 
   console.log("🌐 SSE client connected:", topics);
+
 
   req.on("close", () => {
     clients = clients.filter(c => c !== client);
@@ -89,9 +71,6 @@ app.get("/stream", (req, res) => {
   });
 });
 
-// --------------------------------------------------
-// BROADCAST
-// --------------------------------------------------
 function broadcast(topic, json) {
   const payload = `data: ${JSON.stringify({
     topic,
@@ -106,13 +85,14 @@ function broadcast(topic, json) {
   });
 }
 
+
 // --------------------------------------------------
 // AWS IOT
 // --------------------------------------------------
 const device = awsIot.device({
-  keyPath: "./device-private.pem",
-  certPath: "./device-cert.pem",
-  caPath: "./AmazonRootCA1.pem",
+  keyPath: path.join(__dirname, "device-private.pem"),
+  certPath: path.join(__dirname, "device-cert.pem"),
+  caPath: path.join(__dirname, "AmazonRootCA1.pem"),
   clientId: "pc-backend-1",
   host: "a33p897p55tbkg-ats.iot.eu-central-1.amazonaws.com",
   protocol: "mqtts",
@@ -137,9 +117,18 @@ device.on("message", (topic, payload) => {
 });
 
 
-// --------------------------------------------------
-// START SERVER (IDENTICAL PATTERN)
-// --------------------------------------------------
+// Api Catch-all safe
+app.get('*', (req, res) => {
+  res.json({
+    message: 'Unknown API route',
+    path: req.originalUrl,
+    method: req.method
+  });
+});
+
+
+
+
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 PLC server running on port ${PORT}`);
 });
