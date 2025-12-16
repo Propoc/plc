@@ -5,7 +5,6 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const server = http.createServer(app);
@@ -47,32 +46,44 @@ app.get('/test', (req, res) => {
 let clients = [];
 const SUBSCRIPTIONS = ["tmsig-1/data"];
 
+const generateUniqueId = () => {
+    const now = new Date();
+    // Format: YYYYMMDD
+    const datePart = now.toISOString().substring(0, 10).replace(/-/g, ''); 
+    // Format: HHMM
+    const timePart = now.toTimeString().substring(0, 5).replace(/:/g, ''); 
+    // Random 4-digit hex string
+    const randomPart = Math.random().toString(16).substring(2, 6).toUpperCase(); 
+    
+    return `client-${datePart}-${timePart}-${randomPart}`;
+};
+
+
 app.get("/stream", (req, res) => {
   const topics = (req.query.topics || "")
     .split(",")
     .map(t => t.trim())
     .filter(Boolean);
 
-  const clientId = uuidv4();
+
+  const clientId = generateUniqueId(); 
 
   res.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    "Connection": "keep-alive",
-    "Access-Control-Allow-Origin": "*",
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+      "Access-Control-Allow-Origin": "*",
   });
+
 
   res.write(`: id: ${clientId} established\n\n`); 
 
-  const client = { res, topics, id: clientId }; // Store the ID
+  const client = { res, topics, id: clientId };
   clients.push(client);
-
   console.log(`🌐 SSE client connected: ID ${clientId} for topics:`, topics);
-
 
   req.on("close", () => {
       clients = clients.filter(c => c !== client);
-      // Log the unique ID on disconnect
       console.log(`❌ SSE client disconnected: ID ${clientId}`); 
   });
 });
