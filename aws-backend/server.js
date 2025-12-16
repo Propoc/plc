@@ -1,44 +1,58 @@
-const awsIot = require("aws-iot-device-sdk");
-const express = require("express");
-const http = require("http");
-const cors = require("cors");
-const path = require("path");
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
 
 const PORT = 3456;
 
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+    origin: '*',
+    methods: ['GET', 'POST'],
+    credentials: false,       
+}
+app.use(cors(corsOptions));
 
-// --------------------------------------------------
-// REQUEST LOGGER (MATCHES CARD-GAME)
-// --------------------------------------------------
+// Request logger (simplified)
 app.use((req, res, next) => {
-  if (!req.url.startsWith("/stream")) {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  }
-  next();
+    if (!req.url.startsWith('/socket.io/')) {
+        console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    }
+    next();
 });
 
-// --------------------------------------------------
-// BASIC ROUTES (MATCHING STYLE)
-// --------------------------------------------------
-app.get("/api", (req, res) => {
-  res.json({
-    status: "online",
-    message: "PLC Backend",
-    port: PORT,
-    sse: "/stream"
-  });
+// Static file serving
+app.use(express.static(path.join(__dirname, '../build')));
+
+// API route
+app.get('/api', (req, res) => {
+    res.json({
+        status: 'online',
+        message: 'Card Game Server',
+        port: PORT,
+        socketio: 'enabled'
+    });
 });
 
-app.get("/test", (req, res) => {
-  res.json({
-    message: "PLC server is working!",
-    timestamp: new Date().toISOString()
-  });
+// Test route to verify server is working
+app.get('/test', (req, res) => {
+    res.json({ 
+        message: 'Server is working!',
+        timestamp: new Date().toISOString()
+    });
 });
+
+// React app catch-all - only for non-API, non-static, non-socket.io requests
+app.get('*', (req, res) => {
+    console.log('📄 Serving React app for:', req.path);
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
+
+
 
 // --------------------------------------------------
 // SSE CLIENTS
@@ -120,12 +134,6 @@ device.on("message", (topic, payload) => {
   }
 });
 
-// --------------------------------------------------
-// CATCH-ALL (CRITICAL FOR CLOUDFLARE)
-// --------------------------------------------------
-app.use((req, res) => {
-  res.status(200).send("PLC Backend is running");
-});
 
 // --------------------------------------------------
 // START SERVER (IDENTICAL PATTERN)
