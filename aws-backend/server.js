@@ -48,9 +48,12 @@ app.get('/test', (req, res) => {
     });
 });
 
+// React app catch-all - only for non-API, non-static, non-socket.io requests
 app.get('*', (req, res) => {
-  res.status(404).json({ error: 'Not found' });
+    console.log('📄 Serving React app for:', req.path);
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
+
 
 
 // --------------------------------------------------
