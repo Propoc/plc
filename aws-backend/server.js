@@ -123,10 +123,8 @@ device.on("message", (topic, payload) => {
 // --------------------------------------------------
 // CATCH-ALL (CRITICAL FOR CLOUDFLARE)
 // --------------------------------------------------
-app.get("*", (req, res) => {
-  res
-    .status(200)
-    .send("<html><body><h1>PLC Backend</h1></body></html>");
+app.use((req, res) => {
+  res.status(200).send("PLC Backend is running");
 });
 
 // --------------------------------------------------
