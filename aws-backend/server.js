@@ -5,6 +5,9 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 
+const PORT = 3456;
+
+
 let clients = []; // connected SSE clients: { res, topics[] }
 
 // --------------------------------------------------
@@ -103,6 +106,6 @@ device.on("message", (topic, payload) => {
 // --------------------------------------------------
 // Start Server
 // --------------------------------------------------
-app.listen(3001, () => {
-  console.log("🚀 Server running on http://localhost:3001");
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
