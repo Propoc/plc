@@ -9,6 +9,8 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 
+
+//EC2 de ngnix var 4000e fix anasını siksinler onun
 const PORT = 4000;
 
 // CORS configuration
