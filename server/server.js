@@ -89,11 +89,13 @@ function broadcast(topic, json) {
 // --------------------------------------------------
 // AWS IOT
 // --------------------------------------------------
+
+const clientIdD = `pc-backend-1-${Date.now()}`;
 const device = awsIot.device({
   keyPath: path.join(__dirname, "device-private.pem"),
   certPath: path.join(__dirname, "device-cert.pem"),
   caPath: path.join(__dirname, "AmazonRootCA1.pem"),
-  clientId: `pc-backend-1-${randomId}`,
+  clientId: clientIdD,
   host: "a33p897p55tbkg-ats.iot.eu-central-1.amazonaws.com",
   protocol: "mqtts",
   port: 8883
