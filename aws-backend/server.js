@@ -1,24 +1,48 @@
 const awsIot = require("aws-iot-device-sdk");
 const express = require("express");
+const http = require("http");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+const server = http.createServer(app);
 
 const PORT = 3456;
 
-
-let clients = []; // connected SSE clients: { res, topics[] }
+app.use(cors());
 
 // --------------------------------------------------
-// 1. FIXED TOPIC SUBSCRIPTIONS
+// BASIC HEALTH ROUTES (CRITICAL FOR CLOUDFLARE)
 // --------------------------------------------------
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "PLC Backend",
+    sse: "/stream",
+    time: new Date().toISOString()
+  });
+});
+
+app.get("/test", (req, res) => {
+  res.json({
+    message: "PLC server is working",
+    timestamp: new Date().toISOString()
+  });
+});
+
+
+
+
+// --------------------------------------------------
+// SSE CLIENTS
+// --------------------------------------------------
+let clients = []; // { res, topics[] }
+
 const SUBSCRIPTIONS = [
   "tmsig-1/data",
 ];
 
 // --------------------------------------------------
-// SSE real-time stream
+// SSE STREAM
 // --------------------------------------------------
 app.get("/stream", (req, res) => {
   const topics = (req.query.topics || "")
@@ -31,32 +55,28 @@ app.get("/stream", (req, res) => {
     "Cache-Control": "no-cache",
     "Connection": "keep-alive",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "*",
-    "Access-Control-Allow-Methods": "GET,OPTIONS",
   });
-
-  console.log("🌐 Client connected with topics:", topics);
 
   const client = { res, topics };
   clients.push(client);
 
+  console.log("🌐 SSE client connected:", topics);
+
   req.on("close", () => {
-    console.log("❌ Client disconnected");
     clients = clients.filter(c => c !== client);
+    console.log("❌ SSE client disconnected");
   });
 });
 
 // --------------------------------------------------
-// Broadcast only to matching SSE clients
+// BROADCAST
 // --------------------------------------------------
 function broadcast(topic, json) {
-  const message = {
+  const payload = `data: ${JSON.stringify({
     topic,
     timestamp: Date.now(),
     data: json
-  };
-
-  const payload = `data: ${JSON.stringify(message)}\n\n`;
+  })}\n\n`;
 
   clients.forEach(client => {
     if (client.topics.includes(topic)) {
@@ -66,7 +86,7 @@ function broadcast(topic, json) {
 }
 
 // --------------------------------------------------
-// MQTT CONNECT
+// AWS IOT CONNECT
 // --------------------------------------------------
 const device = awsIot.device({
   keyPath: "./device-private.pem",
@@ -79,33 +99,26 @@ const device = awsIot.device({
 });
 
 device.on("connect", () => {
-  console.log("🟢 Connected to AWS IoT!");
+  console.log("🟢 Connected to AWS IoT");
 
-  // Subscribe to ALL topics in array
   SUBSCRIPTIONS.forEach(topic => {
     device.subscribe(topic);
-    console.log("📡 Subscribed to:", topic);
+    console.log("📡 Subscribed:", topic);
   });
 });
 
-// --------------------------------------------------
-// MQTT Message Handling
-// --------------------------------------------------
 device.on("message", (topic, payload) => {
-  console.log(`\n📥 MQTT message from ${topic}:`, payload.toString());
-
   try {
     const json = JSON.parse(payload.toString());
     broadcast(topic, json);
-    console.log(`✔ Broadcast to clients subscribed to ${topic}`);
-  } catch (e) {
+  } catch {
     console.log("❌ JSON parse error");
   }
 });
 
 // --------------------------------------------------
-// Start Server
+// START SERVER
 // --------------------------------------------------
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 PLC server running on port ${PORT}`);
 });
