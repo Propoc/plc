@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 
+
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  "http://localhost:3001";
+
 const VARS = ["T1", "T2", "T3"];
+
 
 export default function Dashboard() {
   const [data, setData] = useState({});
@@ -16,7 +22,7 @@ export default function Dashboard() {
 
     setStatus("connecting");
 
-    const url = `http://localhost:3001/stream?topics=${encodeURIComponent(topics)}`;
+    const url = `${API_BASE}/stream?topics=${encodeURIComponent(topics)}`;
     const es = new EventSource(url);
 
     es.onopen = () => setStatus("connected");
