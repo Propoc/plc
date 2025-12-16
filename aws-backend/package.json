@@ -1,7 +1,7 @@
 {
-  "name": "card-game-server",
+  "name": "plc-server",
   "version": "1.0.0",
-  "description": "Backend server for card game",
+  "description": "Backend server for plc",
   "main": "server.js",
   "scripts": {
     "build": "CI='' react-scripts build",
