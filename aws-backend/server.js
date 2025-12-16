@@ -2,44 +2,49 @@ const awsIot = require("aws-iot-device-sdk");
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 
-const PORT = 3456;
+const PORT = process.env.PORT || 3456;
 
 app.use(cors());
 
 // --------------------------------------------------
-// BASIC HEALTH ROUTES (CRITICAL FOR CLOUDFLARE)
+// REQUEST LOGGER (MATCHES CARD-GAME)
 // --------------------------------------------------
-app.get("/", (req, res) => {
+app.use((req, res, next) => {
+  if (!req.url.startsWith("/stream")) {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  }
+  next();
+});
+
+// --------------------------------------------------
+// BASIC ROUTES (MATCHING STYLE)
+// --------------------------------------------------
+app.get("/api", (req, res) => {
   res.json({
-    status: "ok",
-    service: "PLC Backend",
-    sse: "/stream",
-    time: new Date().toISOString()
+    status: "online",
+    message: "PLC Backend",
+    port: PORT,
+    sse: "/stream"
   });
 });
 
 app.get("/test", (req, res) => {
   res.json({
-    message: "PLC server is working",
+    message: "PLC server is working!",
     timestamp: new Date().toISOString()
   });
 });
 
-
-
-
 // --------------------------------------------------
 // SSE CLIENTS
 // --------------------------------------------------
-let clients = []; // { res, topics[] }
-
-const SUBSCRIPTIONS = [
-  "tmsig-1/data",
-];
+let clients = [];
+const SUBSCRIPTIONS = ["tmsig-1/data"];
 
 // --------------------------------------------------
 // SSE STREAM
@@ -86,7 +91,7 @@ function broadcast(topic, json) {
 }
 
 // --------------------------------------------------
-// AWS IOT CONNECT
+// AWS IOT
 // --------------------------------------------------
 const device = awsIot.device({
   keyPath: "./device-private.pem",
@@ -100,7 +105,6 @@ const device = awsIot.device({
 
 device.on("connect", () => {
   console.log("🟢 Connected to AWS IoT");
-
   SUBSCRIPTIONS.forEach(topic => {
     device.subscribe(topic);
     console.log("📡 Subscribed:", topic);
@@ -117,7 +121,16 @@ device.on("message", (topic, payload) => {
 });
 
 // --------------------------------------------------
-// START SERVER
+// CATCH-ALL (CRITICAL FOR CLOUDFLARE)
+// --------------------------------------------------
+app.get("*", (req, res) => {
+  res
+    .status(200)
+    .send("<html><body><h1>PLC Backend</h1></body></html>");
+});
+
+// --------------------------------------------------
+// START SERVER (IDENTICAL PATTERN)
 // --------------------------------------------------
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 PLC server running on port ${PORT}`);
