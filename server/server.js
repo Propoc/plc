@@ -52,6 +52,8 @@ app.get("/stream", (req, res) => {
     .map(t => t.trim())
     .filter(Boolean);
 
+  const clientId = uuidv4();
+
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",
@@ -59,17 +61,18 @@ app.get("/stream", (req, res) => {
     "Access-Control-Allow-Origin": "*",
   });
 
-  res.flushHeaders();
+  res.write(`: id: ${clientId} established\n\n`); 
 
-  const client = { res, topics };
+  const client = { res, topics, id: clientId }; // Store the ID
   clients.push(client);
 
-  console.log("🌐 SSE client connected:", topics);
+  console.log(`🌐 SSE client connected: ID ${clientId} for topics:`, topics);
 
 
   req.on("close", () => {
-    clients = clients.filter(c => c !== client);
-    console.log("❌ SSE client disconnected");
+      clients = clients.filter(c => c !== client);
+      // Log the unique ID on disconnect
+      console.log(`❌ SSE client disconnected: ID ${clientId}`); 
   });
 });
 
@@ -116,7 +119,7 @@ device.on("message", (topic, payload) => {
     const json = JSON.parse(payload.toString());
     broadcast(topic, json);
   } catch {
-    console.log("❌ JSON parse error");
+    console.log("A Message recieved but JSON parsing went wrong");
   }
 });
 
