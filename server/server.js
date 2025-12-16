@@ -57,8 +57,6 @@ app.get("/stream", (req, res) => {
     "Access-Control-Allow-Origin": "*",
   });
 
-  res.flushHeaders();
-
   const client = { res, topics };
   clients.push(client);
 
