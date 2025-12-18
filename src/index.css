@@ -2,16 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 1. Set Sour Gummy as the global default */
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: "Sour Gummy", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400; /* Normal weight for general text */
+  font-style: normal;
+  
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+
+.sour-gummy-italic {
+  font-family: "Sour Gummy", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+  font-variation-settings: "wdth" 100;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+html, body {
+  height: 100%;
 }

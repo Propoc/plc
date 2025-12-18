@@ -10,6 +10,14 @@ const app = express();
 const server = http.createServer(app);
 
 
+// 0 dan yapıcaksan ngnixi kurup o defaulttan ekleme yapmak lazım 1 amplify dan domaini kabul ettirtmek için CNAME vericeksin + gitmesi gereken CNAME, rule yazıcaksın diğer www. için proxy gerekli
+//Domain name registrar NS ten -> Clouldflare backendi EC2 deki VM e ordan nginx ordan kod , Frontend Clouldflare -> amplify
+//ssh -i .\cardpair.pem ubuntu@63.179.188.199  vscodeu yönetici aç yoksa açmıyor
+
+// git fetch origin master              (server update)
+// git reset --hard origin/master 
+// pm2 restart server.js   
+
 //EC2 de ngnix var 4000e fix anasını siksinler onun
 const PORT = 4000;
 
@@ -40,24 +48,49 @@ app.get('/test', (req, res) => {
 
 
 
-// --------------------------------------------------
-// SSE stream catch
-// --------------------------------------------------
+
 let clients = [];
-const SUBSCRIPTIONS = ["tmsig-1/data"];
+const activeTopicCounts = {}; // { "topicName": number_of_clients }
 
 const generateUniqueId = () => {
     const now = new Date();
-    // Format: YYYYMMDD
     const datePart = now.toISOString().substring(0, 10).replace(/-/g, ''); 
-    // Format: HHMM
     const timePart = now.toTimeString().substring(0, 5).replace(/:/g, ''); 
-    // Random 4-digit hex string
     const randomPart = Math.random().toString(16).substring(2, 6).toUpperCase(); 
     
     return `client-${datePart}-${timePart}-${randomPart}`;
 };
 
+// Logic to manage AWS IoT Subscriptions dynamically
+function handleNewSubscriptions(topics) {
+    topics.forEach(topic => {
+        if (!activeTopicCounts[topic]) {
+            activeTopicCounts[topic] = 1;
+            device.subscribe(topic);
+            console.log(`📡 AWS Subscribed (New): ${topic}`);
+        } else {
+            activeTopicCounts[topic]++;
+        }
+    });
+}
+
+function handleRemovedSubscriptions(topics) {
+    topics.forEach(topic => {
+        if (activeTopicCounts[topic]) {
+            activeTopicCounts[topic]--;
+            if (activeTopicCounts[topic] === 0) {
+                delete activeTopicCounts[topic];
+                device.unsubscribe(topic);
+                console.log(`🔕 AWS Unsubscribed (Idle): ${topic}`);
+            }
+        }
+    });
+}
+
+
+// --------------------------------------------------
+// SSE stream catch
+// --------------------------------------------------
 
 app.get("/stream", (req, res) => {
   const topics = (req.query.topics || "")
@@ -81,23 +114,24 @@ app.get("/stream", (req, res) => {
   const client = { res, topics, id: clientId };
   clients.push(client);
   console.log(`🌐 SSE client connected: ID ${clientId} for topics:`, topics);
+  handleNewSubscriptions(topics);
 
   req.on("close", () => {
+      handleRemovedSubscriptions(client.topics);
       clients = clients.filter(c => c !== client);
       console.log(`❌ SSE client disconnected: ID ${clientId}`); 
   });
 });
 
-function broadcast(topic, json) {
+function broadcast(topic, json) {  // data: {"topic":"tmsig-1/data","timestamp":1766084012437,"data":{"T1":80}} 
   const payload = `data: ${JSON.stringify({
-    topic,
     timestamp: Date.now(),
     data: json
   })}\n\n`;
-
   clients.forEach(client => {
     if (client.topics.includes(topic)) {
       client.res.write(payload);
+      console.log(`[SSE] Sent to Client #${client.id} | Topic: ${topic} | Payload: ${payload}`);
     }
   });
 }
@@ -120,10 +154,6 @@ const device = awsIot.device({
 
 device.on("connect", () => {
   console.log("🟢 Connected to AWS IoT");
-  SUBSCRIPTIONS.forEach(topic => {
-    device.subscribe(topic);
-    console.log("📡 Subscribed:", topic);
-  });
 });
 
 device.on("message", (topic, payload) => {
@@ -131,7 +161,7 @@ device.on("message", (topic, payload) => {
     const json = JSON.parse(payload.toString());
     broadcast(topic, json);
   } catch {
-    console.log("A Message recieved but JSON parsing went wrong");
+    console.log("⚠️ A Message recieved but JSON parsing went wrong");
   }
 });
 
