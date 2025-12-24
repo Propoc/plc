@@ -40,3 +40,12 @@
   bottom: 0;
   width: 100%;
 }
+
+/*
+          <input
+          type="text"
+          value={topics}
+          onChange={(e) => setTopics(e.target.value)}
+          className="w-1/2 h-12 border-gray-400 rounded-lg text-lg text-center"
+        />
+*/

@@ -14,8 +14,8 @@ const server = http.createServer(app);
 //Domain name registrar NS ten -> Clouldflare backendi EC2 deki VM e ordan nginx ordan kod , Frontend Clouldflare -> amplify
 //ssh -i .\cardpair.pem ubuntu@63.179.188.199  vscodeu yönetici aç yoksa açmıyor
 
-// git fetch origin master              (server update)
-// git reset --hard origin/master 
+// git fetch origin main              (server update)
+// git reset --hard origin/main 
 // pm2 restart server.js   
 
 //EC2 de ngnix var 4000e fix anasını siksinler onun
