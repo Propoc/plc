@@ -42,10 +42,10 @@
 }
 
 /*
-          <input
-          type="text"
-          value={topics}
-          onChange={(e) => setTopics(e.target.value)}
-          className="w-1/2 h-12 border-gray-400 rounded-lg text-lg text-center"
-        />
+    <input
+    type="text"
+    value={topics}
+    onChange={(e) => setTopics(e.target.value)}
+    className="w-1/2 h-12 border-gray-400 rounded-lg text-lg text-center"
+  />
 */

@@ -11,37 +11,109 @@ import { Chart as ChartJS, CategoryScale,LinearScale,PointElement,LineElement,Ti
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 
+const vars = {
+  T1: { id: "T1", label: "Taze Hava Sıcaklık Bilgisi", unit: "°C" },
+  T2: { id: "T2", label: "Dönüş Hava SIcaklık Bilgisi", unit: "°C" },
+  T3: { id: "T3", label: "Üfleme Hava Sıcaklık Bilgisi", unit: "°C" },
+
+  G1: { id: "G1", label: "Cihaz Durmu", unit: "O" },
+  G2: { id: "G2", label: "Sistem Durumu", unit: "O" },
+  G3: { id: "G3", label: "Filtre Durumu", unit: "O" },
+  G4: { id: "G4", label: "Genel Alarm", unit: "O" },
+  G5: { id: "G5", label: "Dönüş Sıcaklık Set", unit: "°C" },
+  G6: { id: "G6", label: "Vantilatör EC Fan Set", unit: "%" },
+  G7: { id: "G7", label: "Aspiratör EC Fan Set", unit: "%" },
+  G8: { id: "G8", label: "Üfleme Üst Limit", unit: "O" },
+  G9: { id: "G9", label: "Üfleme Alt Limit", unit: "O" },
+  G10: { id: "G10", label: "Üfleme Üst Limit Set", unit: "°C" },
+  G11: { id: "G11", label: "Üfleme Üst Limit Set", unit: "°C" },
+
+};
+
+
 const Line = function Line(
-  {label = "Placeholder", config} 
+  {config = { label: "Placeholder" , unit:"V/V"} , type = 0 , history = []} 
   ) {
+
+  let result = "0";
+
+  if (config.unit == "O"){
+    result = "Kapalı"
+  }
+  if (config.unit == "%"){
+    result = "0%"
+  }
+
+  const sensorHistory = history[config.id] || [];
+  
+  const latestEntry = sensorHistory.at(-1); 
+  const latestValue = latestEntry ? latestEntry.val : 0;
+
+
+  if (type === 3) {
+    return (
+      <div className={`w-full h-8 flex items-center justify-center `}>
+        <div className={`w-full h-full flex-[2] flex items-center justify-center text-black text-2xl `}>
+          {config.label}
+        </div>
+        <div className={`w-full h-ful flex-[1] flex items-center justify-center `}>
+          <button className= {`w-fit h-fit bg-gray-400 rounded-full px-8 flex items-center justify-center text-black text-2xl `} >  {result} </button> 
+        </div>         
+      </div>
+    );
+  }
+
+  if (type === 2) {
+    return (
+      <div className={`w-full h-8  flex items-center justify-cente `}>
+        <div className={`w-full h-full slate-100 flex-[4] flex items-center justify-center text-black text-3xl `}>
+          {config.label}
+        </div>
+        <div className={`w-full h-full flex-[1] flex items-center justify-center `}>
+          <button className= {`w-fit h-fit bg-gray-400 rounded-full px-8 p flex items-center justify-center text-black text-3xl `} >  {result} </button> 
+        </div>       
+        <div className={`w-full h-full bg-slate-100 flex-[1] flex items-center justify-center text-black text-3xl `}>
+          80%
+        </div>       
+      </div>
+    );
+  }
+
+  if (type === 1) {
+    return (
+      <div className={`w-full h-12  flex items-center justify-center`}>
+        <div className={`w-full h-full  flex-[6] flex items-center justify-center text-black text-3xl `}>
+          {config.label}
+        </div>      
+        <div className={`w-full h-full  flex-[1] flex items-center justify-end pr-10 text-black text-3xl `}>
+          <Counter
+            value={latestValue}
+            places={[100, 10, 1]}
+            fontSize={40}
+            padding={0}
+            gap={0}
+            textColor="black"
+            fontWeight={"normal"}
+          />
+        </div>      
+        <div className={`w-full h-full  flex-[1] flex items-center justify-start text-black text-3xl `}>
+          {config.unit}
+        </div>  
+      </div>
+
+    );
+  }
 
 
   return(
-    <div className="flex w-full bg-slate-300 h-8">
-
-      {/* Name */}
-      <div className="flex-[2] flex  h-full text-3xl justify-center items-center">
-          {label}
+      <div className={`w-full h-[40px] flex items-center justify-center `}>
+        <div className={`w-full h-full flex-[2] flex items-center justify-center text-black text-3xl `}>
+          {config.label}
+        </div>
+        <div className={`w-full h-ful flex-[1] flex items-center justify-center `}>
+          <button className= {`w-fit h-fit bg-gray-400 rounded-full px-8 py-2 flex items-center justify-center text-black text-3xl `} >  {result} </button> 
+        </div>         
       </div>
-
-      {/* Value */}
-      <div className="flex-[1] h-full flex items-center justify-end">
-        <Counter
-          value={300}
-          places={[100, 10, 1]}
-          fontSize={40}
-          padding={0}
-          gap={0}
-          textColor="black"
-          fontWeight={"normal"}
-        />
-      </div>
-
-      {/* Unit */}
-      <div className="flex-[1] h-full text-3xl  pl-5 flex items-center justify-start">
-        {"C"}
-      </div>
-    </div>
   );
 };
 
@@ -49,11 +121,6 @@ const API_BASE =
   process.env.REACT_APP_API_BASE ||
   "http://localhost:4000";
 
-const variableConfigs = [
-  { id: "T1", label: "Temperature", unit: "°C" },
-  { id: "T2", label: "Force", unit: "N" },
-  { id: "T3", label: "Speed", unit: "m/s" },
-];
 
 const historyLen = 15;
 
@@ -118,18 +185,19 @@ export default function Dashboard() {
  
   }, [topics]);
 
-  const c1 = "bg-green-500";
-  const c2 = "bg-gray-200";
+  const c1 = "bg-[#3CCE58]";
+  const c2 = "bg-slate-100";
 
 
   return (
-    <div className="w-full h-screen bg-slate-300">
+    <div className={`w-full h-screen ${c2}`}>
 
     {/* Top Bar */}
-    <div className={`w-full h-32 ${c1} flex justify-center items-center`}>
+    <div
+      className={`w-full h-32 bg-gradient-to-r from-green-300 via-[#3CCE58] to-green-300 flex justify-center items-center`}
+    >
 
-      <div className="w-full h-full flex-[1] flex justify-center items-center ">
-
+      <div className={`w-full h-full  flex-[1] flex justify-center items-center `}>
       </div>
 
       <div className="w-full h-full flex-[3] flex justify-center items-center text-5xl text-center">
@@ -179,162 +247,85 @@ export default function Dashboard() {
         <button className="w-20 h-full  bg-blue-300"></button>
         <button className="w-20 h-full  bg-yellow-300"></button>
 
-        <div className={`w-1/5   h-full ml-auto bg-gray-800 flex items-center justify-center text-white text-3xl`}>
+        <div className={`w-1/5   h-full ml-auto  flex items-center justify-center text-black text-3xl`}>
           {new Date().toLocaleDateString()}
         </div>
     </div>
 
     {/* Info Tab*/}
-    <div className={`w-full h-16 ${c1} flex items-center mb-12 border-black border-4`}>
+    <div className={`w-full h-12 ${c1} flex items-center mb-8 border-black border-2`}>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl`}> Proje Adı </div>
-          <div className={`w-full h-full flex-[2] flex items-center justify-center text-black text-3xl border-l-4 border-black`}> Perleus </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-4 border-black`}> Proje No </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-4 border-black`}> 123123 </div>
+          <div className={`w-full h-full flex-[2] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Perleus </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Proje No </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> 123123 </div>
     </div>
 
-    <div className={`w-full h-16 ${c1} flex items-center mb-12 border-black border-4 `}>
+    <div className={`w-full h-12 ${c1} flex items-center mb-8 border-black border-2 `}>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl`}> Kullanıcı Adı </div>
-          <div className={`w-full h-full flex-[2] flex items-center justify-center text-black text-3xl border-l-4 border-black`}> admin </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-4 border-black`}> Cihaz No </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-4 border-black`}> 123123 </div>
+          <div className={`w-full h-full flex-[2] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> admin </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Cihaz No </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> 123123 </div>
     </div>
 
     {/* Kullanıcı set tab */}
-    <div className={`w-full h-16 ${c1} flex items-center justify-center text-black text-3xl border-4 border-black`}> Kullanıcı Set Bilgileri </div>
+    <div className={`w-full h-16 ${c1} flex items-center justify-center text-black text-3xl border-2 border-black`}> KULLANICI SET BİLGİLERİ </div>
 
     {/* Kullanıcı set */}
-    <div className={`w-full h-[480px] ${c2} flex items-center justify-center text-black text-3xl border-4 border-t-0 border-black`}>
+    <div className={`w-full h-[300px] ${c2} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
       
       {/* Left */}
       <div className={`w-full h-full ${c2} flex-[2] flex flex-col items-center justify-evenly text-black text-3xl `}>
         
-        <div className={`w-full h-20 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-          <div className={`w-full h-20 bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-            Cihaz Durumu
-          </div>
-          <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            Kapalı
-          </div>         
-        </div>
-
-
-        <div className={`w-full h-20 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-          <div className={`w-full h-20 bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-            Sistem Durumu
-          </div>
-          <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            Kapalı
-          </div>         
-        </div>
-
-
-        <div className={`w-full h-20 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-          <div className={`w-full h-20 bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-            Filtre Durumu
-          </div>
-          <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            Kapalı
-          </div>         
-        </div>
-
-        <div className={`w-full h-20 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-          <div className={`w-full h-20 bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-            Genel Alarm
-          </div>
-          <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            Kapalı
-          </div>         
-        </div>
+        <Line config={vars.G1}/>
+        <Line config={vars.G2}/>
+        <Line config={vars.G3}/>
+        <Line config={vars.G4}/>
 
       </div>
       
       {/* Middle */}
-      <div className={`w-full h-full ${c1} flex-[1] flex-col items-center justify-center text-black text-3xl`}>
+      <div className={`w-full h-full ${c1} flex-[1] flex flex-col items-center justify-center text-black text-3xl`}>
         
+        <div  className={`w-full h-full bg-slate-100 flex-[1] border-black border-l-2 border-r-2  flex flex-col items-center justify-center text-black text-3xl `}>
+
+          <Line config={vars.G5}/>
+
+        </div>
+
+      <div className={`w-full h-full bg-slate-100 flex-[1] border-t-2 border-black border-l-2 border-r-2 flex flex-col items-center justify-center text-black text-3xl`}>
+
+          <div className={`w-full h-8 bg-slate-100 flex items-center justify-center text-black text-3xl `}>
+            <div className={`w-full h-full bg-slate-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
+              Alarm Reset
+            </div>   
+          </div>
+
+        </div>
+
+          
       </div>
 
 
 
       {/* Right */}
-      <div className={`w-full h-full ${c2} flex-[2] flex flex-col items-center justify-evenly text-black text-3xl `}>
+      <div className={`w-full h-full ${c2} bg-blue-600 flex-[2] flex flex-col items-center justify-evenly`}>
 
         {/* Right  Top*/}
-        <div className={`w-full h-full bg-amber-500 flex-[2] flex flex-col items-center justify-evenly   text-black text-3xl `}>
+        <div className={`w-full h-full bg-slate-100 flex-[1] flex flex-col items-center justify-evenly`}>
+    
+          <Line config={vars.G6} type = {2} />
+          <Line config={vars.G7} type = {2} />
 
-          <div className={`w-full h-20 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-            <div className={`w-full h-20 bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-              Dönüş Sıcaklığı Set
-            </div>
-            <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              123
-            </div>         
-          </div>
-          
-          <div className={`w-full h-20 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-            <div className={`w-full h-20 bg-amber-100 flex-[4] flex items-center justify-center text-black text-3xl `}>
-              Vantilatör EC Fan Set
-            </div>
-            <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              80%
-            </div>       
-            <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              80%
-            </div>       
-          </div>
-
-          <div className={`w-full h-20 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-            <div className={`w-full h-20 bg-amber-100 flex-[4] flex items-center justify-center text-black text-3xl `}>
-              Genel Alarm
-            </div>
-            <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              80%
-            </div>       
-            <div className={`w-full h-20 bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              80%
-            </div>       
-          </div>
 
         </div>
 
-
         {/* Right  Bottom*/}
-        <div className={`w-full h-full bg-amber-200 flex-[1] flex flex-col items-center justify-center text-black text-3xl `}>
+        <div className={`w-full h-full bg-slate-100 flex-[2] flex flex-col items-center justify-evenly text-black text-3xl `}>
           
-          <div className={`w-full h-full bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-            <div className={`w-full h-full bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-              Üfleme Üst Limit
-            </div>
-            <div className={`w-full h-full bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              Kapalı
-            </div>         
-          </div>
-          
-          <div className={`w-full h-full bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-            <div className={`w-full h-full bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-              Üfleme Alt Limit
-            </div>
-            <div className={`w-full h-full bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              Kapalı
-            </div>         
-          </div>
-          
-          <div className={`w-full h-full bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-            <div className={`w-full h-full bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-              Üfleme Üst Limit Set
-            </div>
-            <div className={`w-full h-full bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              123
-            </div>         
-          </div>
-
-          <div className={`w-full h-full bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-            <div className={`w-full h-full bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-              Üfleme Alt Limit Set
-            </div>
-            <div className={`w-full h-full bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-              123
-            </div>         
-          </div>
+          <Line config={vars.G8} type = {3}/>
+          <Line config={vars.G9} type = {3}/>
+          <Line config={vars.G10} type = {3}/>
+          <Line config={vars.G11} type = {3}/>
 
         </div>
 
@@ -343,77 +334,26 @@ export default function Dashboard() {
     </div>
 
     {/* Blank tab */}
-    <div className={`w-full h-12 ${c1} flex items-center justify-center text-black text-3xl border-4 border-t-0 border-black`}>
-    </div>
+    <div className={`w-full h-24 ${c2} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
 
-    {/* Kullanıcı set bottom */}
-    <div className={`w-full h-24 ${c2} flex items-center justify-center text-black text-3xl border-4 border-t-0 border-black`}>
+      <div className={`w-16 h-16 ${c1} flex items-center justify-center `}>
 
-      <div className={`w-full h-full bg-amber-500 flex flex-col items-center justify-center text-black text-3xl `}>
-        <div className={`w-full h-full bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-          <div className={`w-full h-full bg-amber-100 flex-[4] flex items-center justify-center text-black text-3xl `}>
-            Mod Durumu
-          </div>
-          <div className={`w-full h-full bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            Isıtma
-          </div>       
-          <div className={`w-full h-full bg-amber-300 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            Kapalı
-          </div>       
-          <div className={`w-full h-full bg-amber-400 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            Soğutma
-          </div>       
-          <div className={`w-full h-full bg-amber-500 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            Kapalı
-          </div>  
-        </div>
-
-        <div className={`w-full h-full bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-          <div className={`w-full h-full bg-amber-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-            Mod Set
-          </div>
-          <div className={`w-full h-full bg-amber-200 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            123
-          </div>       
-          <div className={`w-full h-full bg-amber-300 flex-[1] flex items-center justify-center text-black text-3xl `}>
-            123
-          </div>       
-        </div>
       </div>
 
     </div>
 
     {/* Sensör  tab*/}
-    <div className={`w-full h-16 ${c1} flex items-center justify-center text-black text-3xl border-4 border-t-0 border-black`}>
+    <div className={`w-full h-16 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
         Sensör Bilgileri
     </div>
             
     {/* Sensör */}
-    <div className={`w-full h-fit ${c1} flex flex-col items-center justify-center text-black text-3xl border-4 border-t-0 border-black`}>
+    <div className={`w-full h-fit ${c2} flex flex-col items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
 
-      <div className={`w-full h-12 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-        <div className={`w-full h-full bg-amber-100 flex-[5] flex items-center justify-center text-black text-3xl `}>
-          Sıcaklık Bilgisi
-        </div>      
-        <div className={`w-full h-full bg-amber-300 flex-[1] flex items-center justify-center text-black text-3xl `}>
-          123
-        </div>       
-        <div className={`w-full h-full bg-amber-300 flex-[1] flex items-center justify-center text-black text-3xl `}>
-          mm
-        </div>  
-      </div>
 
-      <div className={`w-full h-12 bg-amber-500 flex items-center justify-center text-black text-3xl `}>
-        <div className={`w-full h-full bg-amber-100 flex-[5] flex items-center justify-center text-black text-3xl `}>
-          Sıcaklık Bilgisi
-        </div>      
-        <div className={`w-full h-full bg-amber-300 flex-[1] flex items-center justify-center text-black text-3xl `}>
-          123
-        </div>       
-        <div className={`w-full h-full bg-amber-300 flex-[1] flex items-center justify-center text-black text-3xl `}>
-          mm
-        </div>  
-      </div>
+       <Line unit={1} config = {vars.T1} type={1} history={history}/>
+       <Line unit={1} config = {vars.T2} type={1} history={history}/>
+       <Line unit={1} config = {vars.T3} type={1} history={history}/>
 
     </div>
 

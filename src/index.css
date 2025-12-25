@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 1. Set Sour Gummy as the global default */
+
 body {
   font-family: "Sour Gummy", sans-serif;
   font-optical-sizing: auto;
