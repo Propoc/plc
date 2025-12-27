@@ -1,14 +1,13 @@
 const FtpSrv = require('ftp-srv');
 
 const ftpServer = new FtpSrv({
-  // Use the actual IP of your computer instead of 0.0.0.0 to force binding
-  url: 'ftp://192.168.1.5:2121', 
+  // Setting port to 21 (Default FTP)
+ url: 'ftp://0.0.0.0:2121',
   pasv_url: '192.168.1.5',
   anonymous: false,
   greeting: "PLC FTP Server Ready"
 });
 
-// Add an 'error' listener to see if the server itself is failing
 ftpServer.on('error', (err) => {
   console.error('❌ Server Error:', err.message);
 });
@@ -16,14 +15,22 @@ ftpServer.on('error', (err) => {
 ftpServer.on('client-connected', (connection) => {
   console.log('📡 CONNECTION DETECTED from', connection.ip);
   
-  // Log every command the PLC sends (like USER, PASS, SYST)
+  // This is the most important part for debugging the PLC
   connection.on('command', (command, args) => {
     console.log(`📥 PLC sent command: ${command} ${args ? args : ''}`);
   });
 });
 
-// ... (keep your login logic the same)
+// Logic for USER 'plc' and PASS 'plc123'
+ftpServer.on('login', ({ username, password, connection }, resolve, reject) => {
+  console.log(`🔐 Login attempt: ${username}`);
+  if (username === 'plc' && password === 'plc123') {
+    resolve({ root: './ftp' }); // Ensure this folder exists!
+  } else {
+    reject(new Error('Invalid credentials'));
+  }
+});
 
 ftpServer.listen().then(() => {
-  console.log('🚀 Server is actively listening on 192.168.1.5:21');
+  console.log('🚀 Server is actively listening on 192.168.1.5');
 });
