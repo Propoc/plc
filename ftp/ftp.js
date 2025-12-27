@@ -1,36 +1,31 @@
 const FtpSrv = require('ftp-srv');
+const fs = require('fs');
 
 const ftpServer = new FtpSrv({
-  // Setting port to 21 (Default FTP)
- url: 'ftp://0.0.0.0:2121',
-  pasv_url: '192.168.1.5',
-  anonymous: false,
-  greeting: "PLC FTP Server Ready"
-});
+  // Use 0.0.0.0 to listen on all interfaces
+  url: 'ftps://0.0.0.0:990', 
 
-ftpServer.on('error', (err) => {
-  console.error('❌ Server Error:', err.message);
-});
-
-ftpServer.on('client-connected', (connection) => {
-  console.log('📡 CONNECTION DETECTED from', connection.ip);
-  
-  // This is the most important part for debugging the PLC
-  connection.on('command', (command, args) => {
-    console.log(`📥 PLC sent command: ${command} ${args ? args : ''}`);
-  });
-});
-
-// Logic for USER 'plc' and PASS 'plc123'
-ftpServer.on('login', ({ username, password, connection }, resolve, reject) => {
-  console.log(`🔐 Login attempt: ${username}`);
-  if (username === 'plc' && password === 'plc123') {
-    resolve({ root: './ftp' }); // Ensure this folder exists!
-  } else {
-    reject(new Error('Invalid credentials'));
+  pasv_url: '63.179.188.199', 
+  pasv_min: 10000,
+  pasv_max: 10005,
+  tls: {
+    key: fs.readFileSync('./key.pem'),
+    cert: fs.readFileSync('./cert.pem')
   }
 });
 
+ftpServer.on('client-connected', ({connection}) => {
+  console.log('Client connected from:', connection.ip);
+  // You can send a custom message before they even try to log in
+  connection.reply(220, 'Anain amiha qoyayim');
+});
+
+// Auto-resolve every login attempt (No actual password check)
+ftpServer.on('login', (data, resolve) => {
+  console.log(`Login attempted by: ${data.username}`);
+  resolve({ root: './public' }); // Points to an empty folder
+});
+
 ftpServer.listen().then(() => {
-  console.log('🚀 Server is actively listening on 192.168.1.5');
+  console.log('FTPS Server is running on port 990');
 });
