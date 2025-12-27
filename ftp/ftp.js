@@ -9,7 +9,13 @@ const ftpServer = new FtpSrv({
   pasv_min: 10000,
   pasv_max: 10005,
 
-  anonymous: true 
+  anonymous: true ,
+
+  tls: {
+    // Note: You must run node with 'sudo' to access /etc/letsencrypt/
+    key: fs.readFileSync('/etc/letsencrypt/live/akscon.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/akscon.com/fullchain.pem')
+  }
 });
 
 ftpServer.on('client-connected', ({connection}) => {
