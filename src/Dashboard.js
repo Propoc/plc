@@ -140,6 +140,13 @@ export default function Dashboard() {
   const [eventSource, setEventSource] = useState(null);
 
 
+  const [addrInput, setAddrInput] = useState("");
+  const [valInput, setValInput] = useState("");
+  const [writePreview, setWritePreview] = useState("");
+  const [writeStatus, setWriteStatus] = useState("");
+
+
+  
 
   useEffect(() => {
     if (eventSource) eventSource.close();
@@ -185,6 +192,37 @@ export default function Dashboard() {
  
   }, [topics]);
 
+
+  const handleWriteClick = async () => {
+    if (!addrInput || !valInput) return;
+
+    setWriteStatus("Sending…");
+
+    try {
+      const res = await fetch(`${API_BASE}/write`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: addrInput.trim(),
+          value: valInput.trim(),
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        setWriteStatus("❌ Server rejected write");
+        return;
+      }
+
+      setWritePreview(json.content);
+      setWriteStatus("✅ Written to test.txt");
+    } catch {
+      setWriteStatus("❌ Network error");
+    }
+  };
+
+
   const c1 = "bg-[#3CCE58]";
   const c2 = "bg-slate-100";
 
@@ -198,6 +236,7 @@ export default function Dashboard() {
     >
 
       <div className={`w-full h-full  flex-[1] flex justify-center items-center `}>
+
       </div>
 
       <div className="w-full h-full flex-[3] flex justify-center items-center text-5xl text-center">
@@ -358,6 +397,71 @@ export default function Dashboard() {
     </div>
 
 
+    <div
+      className="bg-white rounded-xl shadow-md p-5 flex flex-col gap-3"
+      style={{ width: 420 }}
+    >
+      <div className="text-lg font-semibold">
+        PLC Write Command
+      </div>
+
+      <div className="text-sm text-gray-500">
+        Generates <code>addressAvalueA</code> for <b>test.txt</b>
+      </div>
+
+      {/* Address input */}
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium">Address</label>
+        <input
+          type="number"
+          value={addrInput}
+          onChange={(e) => setAddrInput(e.target.value)}
+          className="border rounded-lg px-3 py-2 text-sm"
+          placeholder="e.g. 40001"
+        />
+      </div>
+
+      {/* Value input */}
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium">Value</label>
+        <input
+          type="number"
+          value={valInput}
+          onChange={(e) => setValInput(e.target.value)}
+          className="border rounded-lg px-3 py-2 text-sm"
+          placeholder="e.g. 123"
+        />
+      </div>
+
+      {/* Preview */}
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium">Preview</label>
+        <div className="border border-dashed rounded-lg p-2 text-sm font-mono min-h-[36px]">
+          {writePreview || "—"}
+        </div>
+      </div>
+
+      {/* Button */}
+      <button
+        onClick={handleWriteClick}
+        className="bg-[#3CCE58] text-white rounded-lg py-2 font-semibold hover:opacity-90"
+      >
+        Write test.txt
+      </button>
+
+      {/* Status */}
+      {writeStatus && (
+        <div className="text-sm font-mono">
+          {writeStatus}
+        </div>
+      )}
+    </div>
+
+
+
   </div>
   );
+
+
+  
 }
