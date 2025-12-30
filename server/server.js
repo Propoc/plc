@@ -24,11 +24,15 @@ const PORT = 4000;
 
 // CORS configuration
 const corsOptions = {
-    origin: '*',
-    methods: ['GET', 'POST'],
-    credentials: false,       
-}
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
+  credentials: false,
+};
+
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 
 
 // API route Catchers
@@ -79,6 +83,7 @@ app.post("/write", express.json(), async (req, res) => {
     console.log(`✍️ Wrote test.txt → ${content}`);
 
     res.json({ ok: true, content });
+    
   } catch (err) {
     console.error("❌ Write failed:", err);
     res.status(500).json({ error: "Write failed" });

@@ -291,8 +291,6 @@ export default function Dashboard() {
 
   const handleWriteClick = async (addr,val) => {
 
-    if (writeStatus === "Sending…") {console.log("Send in progress wait"); return; }
-
     setWriteStatus("Sending…");
     
     try {
@@ -300,24 +298,24 @@ export default function Dashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          address: addr.trim(),
-          value: val.trim(),
+          address: String(addr).trim(),
+          value: String(val).trim(),
         }),
       });
       const json = await res.json();
 
+
+      
       if (!res.ok) {
         setWriteStatus("❌ Server rejected write");
-        console.log("Write - Server reject");
         return;
       }
       setWritePreview(json.content);
       setWriteStatus("✅ Written to test.txt");
-      console.log("Write - Success");
+
     } catch {
       setWriteStatus("❌ Network error");
-      console.log("Write - Network error");
-      
+    
     }
   };
 
