@@ -17,7 +17,7 @@ const server = http.createServer(app);
 
 // git fetch origin main              (server update)
 // git reset --hard origin/main 
-// pm2 restart server.js   
+// pm2 restart api 
 
 //EC2 de ngnix var 4000e fix anasını siksinler onun
 const PORT = 4000;
@@ -29,7 +29,7 @@ const corsOptions = {
     credentials: false,       
 }
 app.use(cors(corsOptions));
-
+app.use(express.json());
 
 
 // API route Catchers
