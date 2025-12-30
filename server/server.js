@@ -5,7 +5,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
-//const fs = require("fs/promises");
+const fs = require("fs/promises");
 
 const app = express();
 const server = http.createServer(app);
@@ -46,7 +46,44 @@ app.get('/test', (req, res) => {
     });
 });
 
+app.post("/write", express.json(), async (req, res) => {
+  try {
+    const { address, value } = req.body;
 
+    // frontend sends raw strings
+    if (
+      typeof address !== "string" ||
+      typeof value !== "string" ||
+      !/^\d+$/.test(address) ||
+      !/^\d+$/.test(value)
+    ) {
+      return res.status(400).json({ error: "Invalid address or value" });
+    }
+
+    // EXACT content that will go into test.txt
+    const content = `${address}/${value}/`;
+
+    // ---- RAW LOGGING (before write) ----
+    console.log("🧾 [RAW STRING]");
+    console.log(content);
+
+
+    const dir = "/srv/ftp/upload";
+    const file = `${dir}/test.txt`;
+    const tmp = `${file}.tmp`;
+
+    // atomic write (PLC-safe)
+    await fs.writeFile(tmp, content, "utf8");
+    await fs.rename(tmp, file);
+
+    console.log(`✍️ Wrote test.txt → ${content}`);
+
+    res.json({ ok: true, content });
+  } catch (err) {
+    console.error("❌ Write failed:", err);
+    res.status(500).json({ error: "Write failed" });
+  }
+});
 
 
 let clients = [];
