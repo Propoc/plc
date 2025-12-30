@@ -34,6 +34,10 @@ app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
 
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+
 
 // API route Catchers
 app.get('/api', (req, res) => {
@@ -52,7 +56,7 @@ app.get('/test', (req, res) => {
 
 app.post("/write", express.json(), async (req, res) => {
   try {
-    const { address, value } = req.body;
+    const { address, value, topic } = req.body;
 
     // frontend sends raw strings
     if (
@@ -64,29 +68,34 @@ app.post("/write", express.json(), async (req, res) => {
       return res.status(400).json({ error: "Invalid address or value" });
     }
 
+    // Validate topic name (used as filename)
+    if (
+      typeof topic !== "string" ||
+      !/^[a-zA-Z0-9_-]+$/.test(topic)
+    ) {
+      return res.status(400).json({ error: "Invalid topic name" });
+    }
+
     // EXACT content that will go into test.txt
     const content = `${address}/${value}/`;
 
-    // ---- RAW LOGGING (before write) ----
-    console.log("🧾 [RAW STRING]");
-    console.log(content);
-
-
     const dir = "/srv/ftp/upload";
-    const file = `${dir}/test.txt`;
+    const file = path.join(dir, `${topic}.txt`);
     const tmp = `${file}.tmp`;
 
+    
     // atomic write (PLC-safe)
+
+    await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(tmp, content, "utf8");
     await fs.rename(tmp, file);
 
-    console.log(`✍️ Wrote test.txt → ${content}`);
-
-    res.json({ ok: true, content });
+    console.log(`✍️ Wrote ${topic}.txt → ${content}`);
+    res.json({ ok: true, file: `${topic}.txt`, content });
     
   } catch (err) {
     console.error("❌ Write failed:", err);
-    res.status(500).json({ error: "Write failed" });
+    res.status(500).json({ error: err });
   }
 });
 

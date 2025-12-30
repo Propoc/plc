@@ -9,7 +9,7 @@ const vars = {
   T2: { id: "T2", label: "Dönüş Hava Sıcaklık Bilgisi", unit: "°C" },
   T3: { id: "T3", label: "Üfleme Hava Sıcaklık Bilgisi", unit: "°C" },
 
-  G1: { id: "G1", label: "Cihaz Durmu", unit: "O" , addr: 16384 },
+  G1: { id: "G1", label: "Cihaz Durumu", unit: "O" , addr: 16384 },
   G2: { id: "G2", label: "Sistem Durumu", unit: "O" },
   G3: { id: "G3", label: "Filtre Durumu", unit: "O" },
   G4: { id: "G4", label: "Genel Alarm", unit: "O" },
@@ -20,6 +20,19 @@ const vars = {
   G9: { id: "G9", label: "Üfleme Alt Limit", unit: "°C" },
   G10: { id: "G10", label: "Üfleme Üst Limit Set", unit: "°C" },
   G11: { id: "G11", label: "Üfleme Üst Limit", unit: "°C" },
+
+  D1: { id: "D1", label: "Vantilatör EC Fan Durumu", unit: "O" },
+  D2: { id: "D2", label: "Aspiratör EC Fan Durumu", unit: "O" },
+  D3: { id: "D3", label: "Taze Hava ve Egzoz Hava Damper Durumu", unit: "O" },
+  D4: { id: "D4", label: "Bypass Damper Durumu", unit: "O" },
+  D5: { id: "D5", label: "Mutfak Gaz Selenoid Valve Durumu", unit: "O",},
+  D6: { id: "D6", label: "Sistem Çalışma Durumu", unit: "O" },
+  D7: { id: "D7", label: "Genel Filtre Durumu", unit: "O" },
+  D8: { id: "D8", label: "Genel Alarım Bilgisi", unit: "O" },
+  D9: { id: "D9", label: "VRF Isıtma Modu", unit: "O" },
+  D10: { id: "D10", label: "VRF Soğutma Modu", unit: "O" },
+  D11: { id: "D11", label: "VRF Defrost Modu", unit: "O" },
+  D12: { id: "D12", label: "VRF Alarm Modu", unit: "O" },
 
 };
 
@@ -150,6 +163,19 @@ const Line = function Line(
   const latestValue = latestEntry ? latestEntry.val : -1;
 
 
+    if (type === 3) {
+    return (
+      <div className={`w-full h-16  flex items-center justify-center`}>
+        <div className={`w-full h-full  flex-[6] flex items-center justify-center text-black text-3xl `}>
+          {config.label}
+        </div>      
+        <div className={`w-full h-full  flex-[2] flex items-center justify-center text-black text-3xl `}>
+          <But isbool = {config.unit === "O"}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
+        </div>      
+      </div>
+
+    );
+  }
 
   if (type === 2) {
     return (
@@ -158,7 +184,7 @@ const Line = function Line(
           {config.label}
         </div>
         <div className={`w-full h-full flex-[1] flex items-center justify-center `}>
-          <button className= {`w-fit h-fit bg-gray-400 rounded-full px-8 p flex items-center justify-center text-black text-3xl `} >  {latestValue} </button> 
+            <But isbool = {config.unit === "O"}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
         </div>       
         <div className={`w-full h-full bg-slate-100 flex-[1] flex items-center justify-center text-black text-3xl `}>
           80%
@@ -185,7 +211,7 @@ const Line = function Line(
   }
 
 return(
-  <div className={`w-full h-[40px] flex items-center justify-center `}>
+  <div className={`w-full h-[50px] flex items-center justify-center `}>
     <div className={`w-full h-full flex-[2] flex items-center justify-center text-black ` + textsize}>
       {config.label}
     </div>
@@ -227,6 +253,7 @@ export default function Dashboard() {
 
   const [status, setStatus] = useState("Connection not started");
   const [topics, setTopics] = useState("tmsig-1/data");
+  const [topicFile, setTopicFile] = useState("tmsig-1");
   const [eventSource, setEventSource] = useState(null);
 
 
@@ -300,22 +327,24 @@ export default function Dashboard() {
         body: JSON.stringify({
           address: String(addr).trim(),
           value: String(val).trim(),
+          topic: topicFile,
         }),
       });
       const json = await res.json();
 
 
-      
+
       if (!res.ok) {
         setWriteStatus("❌ Server rejected write");
+        console.log("Write Fail " + json.error);
         return;
       }
       setWritePreview(json.content);
       setWriteStatus("✅ Written to test.txt");
+      console.log("Write Done " + json.file + " " + json.content);
 
     } catch {
       setWriteStatus("❌ Network error");
-    
     }
   };
 
@@ -457,8 +486,8 @@ const shadowColor = flashBlue
         {/* Right  Top*/}
         <div className={`w-full h-full bg-slate-100 flex-[1] flex flex-col items-center justify-evenly`}>
     
-          <Line config={vars.G6} history={history} type = {2} />
-          <Line config={vars.G7} history={history} type = {2} />
+          <Line config={vars.G6} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
+          <Line config={vars.G7} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
 
 
         </div>
@@ -466,10 +495,10 @@ const shadowColor = flashBlue
         {/* Right  Bottom*/}
         <div className={`w-full h-full bg-slate-100 flex-[2] flex flex-col items-center justify-evenly text-black text-3xl `}>
           
-          <Line config={vars.G8} history={history} textsize="text-2xl"/>
-          <Line config={vars.G9} history={history} textsize="text-2xl"/>
-          <Line config={vars.G10} history={history} textsize="text-2xl"/>
-          <Line config={vars.G11} history={history} textsize="text-2xl"/>
+          <Line config={vars.G8} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
+          <Line config={vars.G9} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
+          <Line config={vars.G10} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
+          <Line config={vars.G11} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
 
         </div>
 
@@ -492,17 +521,42 @@ const shadowColor = flashBlue
     </div>
             
     {/* Sensör */}
-    <div className={`w-full h-fit ${c2} flex flex-col items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+    <div className={`w-full h-fit ${c2} flex flex-col items-center justify-center text-black text-3xl gap-2 border-2 border-t-0 border-black`}>
 
 
        <Line config = {vars.T1} history={history}  type={1} />
-       <Line config = {vars.T2} history={history} type={1}/>
+       <Line config = {vars.T2} history={history}  type={1} />
        <Line config = {vars.T3} history={history}  type={1} />
 
     </div>
 
+    
+    {/* Durum  tab*/}
+    <div className={`w-full h-16 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+        Sensör Bilgileri
+    </div>
+            
+    {/* Durum */}
+    <div className={`w-full h-fit ${c2} flex flex-col items-center justify-center text-black text-3xl gap-2  border-2 border-t-0 border-black`}>
 
+      {Array.from({ length: 12 }, (_, i) => {
+        const key = `D${i + 1}`;
+        return (
+          <Line
+            key={key}
+            config={vars[key]}
+            history={history}
+            type={3}
+          />
+        );
+      })}
 
+    </div>
+    
+    {/* Arıza tab*/}
+    <div className={`w-full h-16 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+        Arıza Bilgileri
+    </div>
 
   </div>
   );
