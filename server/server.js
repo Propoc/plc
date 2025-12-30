@@ -29,7 +29,6 @@ const corsOptions = {
     credentials: false,       
 }
 app.use(cors(corsOptions));
-app.use(express.json());
 
 
 // API route Catchers
