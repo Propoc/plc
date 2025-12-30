@@ -196,18 +196,13 @@ return(
     </div>         
   </div>
   );
-
-
-
  
 };
 
 
 
-
-
-const API_BASE =   
-  process.env.REACT_APP_API_BASE || "http://api.akscon.com" ||
+const API_BASE =   "https://api.akscon.com" ||     // FIX IT FIX IT
+  process.env.REACT_APP_API_BASE ||
   "http://localhost:4000";
 
   
@@ -284,15 +279,14 @@ export default function Dashboard() {
         return next;
       });
 
-              
-
+            
     };
 
 
     setEventSource(es);
     return () => es.close();
  
-  }, [topics,history]);
+  }, [topics]);
 
 
   const handleWriteClick = async (addr,val) => {
