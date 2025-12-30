@@ -1,48 +1,65 @@
 import React, { useEffect, useState } from "react";
 
 import { motion } from "framer-motion";
-
+ 
 
 // Adress farese write balonu unit "O" ise On Off
 const vars = {
   T1: { id: "T1", label: "Taze Hava Sıcaklık Bilgisi", unit: "°C" },
   T2: { id: "T2", label: "Dönüş Hava Sıcaklık Bilgisi", unit: "°C" },
   T3: { id: "T3", label: "Üfleme Hava Sıcaklık Bilgisi", unit: "°C" },
+  T4: { id: "T4", label: "VRF Ambient Sıcaklık", unit: "°C" },
 
   G1: { id: "G1", label: "Cihaz Durumu", unit: "O" , addr: 16384 },
-  G2: { id: "G2", label: "Sistem Durumu", unit: "O" },
-  G3: { id: "G3", label: "Filtre Durumu", unit: "O" },
-  G4: { id: "G4", label: "Genel Alarm", unit: "O" },
+  G2: { id: "G2", label: "Sistem Durumu", unit: "O" },  
+  G3: { id: "G3", label: "Filtre Durumu", unit: "K" },
+  G4: { id: "G4", label: "Genel Alarm", unit: "A" },  
   G5: { id: "G5", label: "Dönüş Sıcaklık Set", unit: "°C", addr: 16387 },
-  G6: { id: "G6", label: "Vantilatör EC Fan Set", unit: "%" , addr: 16484 },
-  G7: { id: "G7", label: "Aspiratör EC Fan Set", unit: "%" , addr: 16483},
-  G8: { id: "G8", label: "Üfleme Alt Limit Set", unit: "°C" },
-  G9: { id: "G9", label: "Üfleme Alt Limit", unit: "°C" },
-  G10: { id: "G10", label: "Üfleme Üst Limit Set", unit: "°C" },
-  G11: { id: "G11", label: "Üfleme Üst Limit", unit: "°C" },
+  G6: { id: "G6", label: "Vantilatör EC Fan Set", unit: "%" , addr: 16484 }, //8448
+  G7: { id: "G7", label: "Aspiratör EC Fan Set", unit: "%" , addr: 16483 },  //8449
+  G8: { id: "G8", label: "Üfleme Alt Limit Set", unit: "O" , addr : 16394 },
+  G9: { id: "G9", label: "Üfleme Alt Limit", unit: "°C" , addr: 16450},
+  G10: { id: "G10", label: "Üfleme Üst Limit Set", unit: "O" , addr : 16389 },
+  G11: { id: "G11", label: "Üfleme Üst Limit", unit: "°C" , addr: 16393},
 
   D1: { id: "D1", label: "Vantilatör EC Fan Durumu", unit: "O" },
   D2: { id: "D2", label: "Aspiratör EC Fan Durumu", unit: "O" },
   D3: { id: "D3", label: "Taze Hava ve Egzoz Hava Damper Durumu", unit: "O" },
   D4: { id: "D4", label: "Bypass Damper Durumu", unit: "O" },
   D5: { id: "D5", label: "Mutfak Gaz Selenoid Valve Durumu", unit: "O",},
-  D6: { id: "D6", label: "Sistem Çalışma Durumu", unit: "O" },
-  D7: { id: "D7", label: "Genel Filtre Durumu", unit: "O" },
-  D8: { id: "D8", label: "Genel Alarım Bilgisi", unit: "O" },
-  D9: { id: "D9", label: "VRF Isıtma Modu", unit: "O" },
-  D10: { id: "D10", label: "VRF Soğutma Modu", unit: "O" },
-  D11: { id: "D11", label: "VRF Defrost Modu", unit: "O" },
-  D12: { id: "D12", label: "VRF Alarm Modu", unit: "O" },
 
+  D6: { id: "D6", label: "VRF Isıtma Modu", unit: "O" },  
+  D7: { id: "D7", label: "VRF Soğutma Modu", unit: "O" },  
+  D8: { id: "D8", label: "VRF Defrost Modu", unit: "O" }, 
+  D9: { id: "D9", label: "VRF Alarm Modu", unit: "O" },
+
+
+
+  A1: { id: "A1", label: "Taze Hava Filtre Kirlilik Bilgisi", unit: "A" },
+  A2: { id: "A2", label: "Dönüş Hava Kirlilik Bilgisi", unit: "A" },
+  A3: { id: "A3", label: "Vantilatör EC Fan Arıza Bilgisi", unit: "A" },
+  A4: { id: "A4", label: "Aspiratör EC Fan Arıza Bilgisi", unit: "A" },
+  A5: { id: "A5", label: "Acil Durum Arıza Bilgisi", unit: "A",},
+  A6: { id: "A6", label: "VRF Alarm", unit: "A" },
+  A7: { id: "A7", label: "Yangın Alarm Bilgisi", unit: "A" },
+
+  O1: { id: "O1", label: "Vantilatör O", unit: "%" },
+  O2: { id: "O2", label: "Aspiratör O", unit: "%" },
+
+  R1: { id: "R1", label: "Alarm Reset", unit: "O", add: 9008 },
 };
 
 const But = function But(
-  { isbool = true , result = 0,  addr = 0 , textsize = 'text-3xl' , handleWriteClick} 
+  { display = "O" , result = 0,  addr = 0 , textsize = 'text-3xl' , handleWriteClick} 
   ) {
 
     const [hovered, setHovered] = useState(false);
     const [text, setText] = useState("");
     const [bubble, setBubble] = useState(false);
+
+    let final;
+    let clr = "bg-amber-200";
+    let isbool = display === "O";
 
     const handleBubble = () => {
 
@@ -66,27 +83,63 @@ const But = function But(
 
     };
 
-    let display;
-    let clr = "bg-gray-400";
 
-    if (isbool)
+    if (display === "O")
     {
       if (result === -1) {
-        display = "Undefined";
+        final = "Undefined";
       }
       else if (result === 0) {
-        display = "Kapalı";
+        final = "Kapalı";
         clr = "bg-red-500";
       }
       else if (result === 1) {
-        display = "Açık";
+        final = "Açık";
+        clr = "bg-green-500";
+      }
+    }
+
+    else if (display === "K")
+    {
+      if (result === -1) {
+        final = "Undefined";
+      }
+      else if (result === 0) {
+        final = "Temiz";
+        clr = "bg-green-500";
+      }
+      else if (result === 1) {
+        final = "Kirli";
+        clr = "bg-red-500";
+      }
+    }
+
+    else if (display === "A")
+    {
+      if (result === -1) {
+        final = "Undefined";
+      }
+      else if (result === 0) {
+        final = "Normal";
+        clr = "bg-green-500";
+      }
+      else if (result === 1) {
+        final = "Alarm";
         clr = "bg-green-500";
       }
 
     }
+
+    else if (display === "%")
+    {
+      final = result;  
+      final = `${(final / 10).toFixed(1).replace('.', ',')}%`;
+    }
+
     else
     {
-      display = result; 
+      final = result; 
+      final = (final / 10).toFixed(1).replace('.', ',');
     }
 
 
@@ -137,12 +190,12 @@ const But = function But(
           flex items-center justify-center text-black 
           transition-transform duration-150
           ${textsize === 'text-3xl' ? "px-8 py-2" : "px-4 py-1" }
-          ${addr && hovered ? "scale-125 active:scale-90 bg-amber-300 " : "scale-100 " + clr }
+          ${addr && hovered ? "scale-125 active:scale-90 bg-amber-800 " : "scale-100 " + clr }
           ${addr ? "cursor-pointer " : "cursor-default " } 
         `  +  textsize }
       >
 
-        {display}
+        {final}
 
       </button>
     
@@ -154,7 +207,7 @@ const But = function But(
 
 
 const Line = function Line(
-  { config = { label: "Placeholder", unit: "V/V" , addr : 0 }, type = 0, history = [] , textsize = 'text-3xl' , handleWriteClick }
+  { config = { label: "Placeholder", unit: "V/V" , addr : 0 }, type = 0, history = [] , textsize = 'text-3xl' , extra , handleWriteClick }
 ) {
 
 
@@ -170,7 +223,7 @@ const Line = function Line(
           {config.label}
         </div>      
         <div className={`w-full h-full  flex-[2] flex items-center justify-center text-black text-3xl `}>
-          <But isbool = {config.unit === "O"}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
+          <But display = {config.unit}   result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
         </div>      
       </div>
 
@@ -178,16 +231,22 @@ const Line = function Line(
   }
 
   if (type === 2) {
+
+      const extraHistory = history[extra.id] || [];
+      const extraEntry = extraHistory.at(-1);
+      const extraValue = extraEntry ? extra.val : -1;
+
+
     return (
       <div className={`w-full h-8  flex items-center justify-cente `}>
         <div className={`w-full h-full slate-100 flex-[4] flex items-center justify-center text-black text-3xl `}>
           {config.label}
         </div>
         <div className={`w-full h-full flex-[1] flex items-center justify-center `}>
-            <But isbool = {config.unit === "O"}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
+            <But display = {config.unit}   result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
         </div>       
         <div className={`w-full h-full bg-slate-100 flex-[1] flex items-center justify-center text-black text-3xl `}>
-          80%
+            <But display = {extra.unit}   result = {extraValue} addr = {extra.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
         </div>       
       </div>
     );
@@ -217,7 +276,7 @@ return(
     </div>
     <div className={`w-full h-ful flex-[1] flex items-center justify-center `}>
 
-      <But isbool = {config.unit === "O"}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
+      <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
 
     </div>         
   </div>
@@ -430,7 +489,7 @@ const shadowColor = flashBlue
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl`}> Proje Adı </div>
           <div className={`w-full h-full flex-[2] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Perleus </div>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Proje No </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> 123123 </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> tmsig-1 </div>
     </div>
 
     <div className={`w-full h-12 ${c1} flex items-center mb-8 border-black border-2 `}>
@@ -486,8 +545,8 @@ const shadowColor = flashBlue
         {/* Right  Top*/}
         <div className={`w-full h-full bg-slate-100 flex-[1] flex flex-col items-center justify-evenly`}>
     
-          <Line config={vars.G6} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
-          <Line config={vars.G7} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
+          <Line config={vars.G6} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} extra ={vars.O1}/>
+          <Line config={vars.G7} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} extra ={vars.O2}/>
 
 
         </div>
@@ -533,13 +592,13 @@ const shadowColor = flashBlue
     
     {/* Durum  tab*/}
     <div className={`w-full h-16 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
-        Sensör Bilgileri
+        Durum Bilgileri
     </div>
             
     {/* Durum */}
     <div className={`w-full h-fit ${c2} flex flex-col items-center justify-center text-black text-3xl gap-2  border-2 border-t-0 border-black`}>
 
-      {Array.from({ length: 12 }, (_, i) => {
+      {Array.from({ length: 8 }, (_, i) => {
         const key = `D${i + 1}`;
         return (
           <Line
@@ -550,6 +609,9 @@ const shadowColor = flashBlue
           />
         );
       })}
+      <Line config={vars.G2} history={history} type={3}/>
+      <Line config={vars.G3} history={history} type={3}/>
+      <Line config={vars.G4} history={history} type={3}/>
 
     </div>
     
