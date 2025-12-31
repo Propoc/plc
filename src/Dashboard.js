@@ -8,7 +8,7 @@ const vars = {
   T1: { id: "T1", label: "Taze Hava Sıcaklık Bilgisi", unit: "°C" },
   T2: { id: "T2", label: "Dönüş Hava Sıcaklık Bilgisi", unit: "°C" },
   T3: { id: "T3", label: "Üfleme Hava Sıcaklık Bilgisi", unit: "°C" },
-  T4: { id: "T4", label: "VRF Ambient Sıcaklık", unit: "°C" },
+  T4: { id: "T4", label: "VRF Ambient Sıcaklık Bilgisi", unit: "°C" },
 
   G1: { id: "G1", label: "Cihaz Durumu", unit: "O" , addr: 16384 },
   G2: { id: "G2", label: "Sistem Durumu", unit: "O" },  
@@ -63,7 +63,7 @@ const But = function But(
 
     const handleBubble = () => {
 
-      if (isbool) {
+      if (isbool && addr !== 0) {
 
         if (result === -1) return;
         let val = 1 - result;
@@ -177,27 +177,39 @@ const But = function But(
       </div>
         
         
-        <div className=" flex-[1] bg-blue-500">
-
-        </div>
-
-      <button
+      <motion.button
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onClick={handleBubble}
+        animate={
+          addr && !hovered
+            ? { scale: [1, 1, 1] }
+            : { scale: hovered ? 1.25 : 1 }
+        }
+        transition={
+          addr && !hovered
+            ? {
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }
+            : {
+                type: "spring",
+                stiffness: 300,
+                damping: 20,
+              }
+        }
         className={`
           w-fit h-fit rounded-full
-          flex items-center justify-center text-black 
-          transition-transform duration-150
-          ${textsize === 'text-3xl' ? "px-8 py-2" : "px-4 py-1" }
-          ${addr && hovered ? "scale-125 active:scale-90 bg-amber-800 " : "scale-100 " + clr }
-          ${addr ? "cursor-pointer " : "cursor-default " } 
-        `  +  textsize }
+          flex items-center justify-center text-black
+          ${textsize === "text-3xl" ? "px-8 py-2" : "px-4 py-1"}
+          ${addr ? "cursor-pointer" : "cursor-default"}
+          ${hovered ? "bg-amber-800" : clr}
+        ` + " " + textsize}
       >
-
         {final}
-
-      </button>
+        
+      </motion.button>
     
     
      </div>
@@ -253,13 +265,16 @@ const Line = function Line(
   }
 
   if (type === 1) {
+
+    let final = (latestValue / 10).toFixed(1).replace('.', ',');
+
     return (
-      <div className={`w-full h-12  flex items-center justify-center`}>
+      <div className={`w-full h-16 flex items-center justify-center`}>
         <div className={`w-full h-full  flex-[6] flex items-center justify-center text-black text-3xl `}>
           {config.label}
-        </div>      
-        <div className={`w-full h-full  flex-[1] flex items-center justify-end pr-10 text-black text-3xl `}>
-          {latestValue}
+        </div>    
+        <div className={`w-full h-full flex-[1] flex items-center justify-end pr-8 text-black text-3xl `}>
+          {final}
         </div>      
         <div className={`w-full h-full  flex-[1] flex items-center justify-start text-black text-3xl `}>
           {config.unit}
@@ -286,9 +301,7 @@ return(
 
 
 
-const API_BASE =   "https://api.akscon.com" ||     // FIX IT FIX IT
-  process.env.REACT_APP_API_BASE ||
-  "http://localhost:4000";
+const API_BASE = process.env.REACT_APP_API_BASE || "https://api.akscon.com" ||  "http://localhost:4000";   // FIX IT FIX I
 
   
 
@@ -503,20 +516,20 @@ const shadowColor = flashBlue
     <div className={`w-full h-16 ${c1} flex items-center justify-center text-black text-3xl border-2 border-black`}> KULLANICI SET BİLGİLERİ </div>
 
     {/* Kullanıcı set */}
-    <div className={`w-full h-[300px] ${c2} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+    <div className={`w-full h-[400px] ${c2} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
       
       {/* Left */}
-      <div className={`w-full h-full ${c2} flex-[2] flex flex-col items-center justify-evenly text-black text-3xl `}>
+      <div className={`w-full h-full ${c2} flex-[5] flex flex-col items-center justify-evenly text-black text-3xl `}>
         
         <Line config={vars.G1} history={history} handleWriteClick={handleWriteClick}/>
-        <Line config={vars.G2} history={history}/>
-        <Line config={vars.G3} history={history}/>
-        <Line config={vars.G4} history={history}/>
+        <Line config={vars.G2} history={history} />
+        <Line config={vars.G3} history={history} />
+        <Line config={vars.G4} history={history} />
 
       </div>
       
       {/* Middle */}
-      <div className={`w-full h-full ${c1} flex-[1] flex flex-col items-center justify-center text-black text-3xl`}>
+      <div className={`w-full h-full ${c1} flex-[3] flex flex-col items-center justify-center text-black text-3xl`}>
         
         <div  className={`w-full h-full bg-slate-100 flex-[1] border-black border-l-2 border-r-2  flex flex-col items-center justify-center text-black text-3xl `}>
 
@@ -528,8 +541,26 @@ const shadowColor = flashBlue
 
           <div className={`w-full h-8 bg-slate-100 flex items-center justify-center text-black text-3xl `}>
             <div className={`w-full h-full bg-slate-100 flex-[2] flex items-center justify-center text-black text-3xl `}>
-              Alarm Reset
+
+
+              <button
+                className={`
+                  w-fit h-fit rounded-full
+                  flex items-center justify-center text-black bg-amber-200  px-8 py-4
+                  transition-transform duration-150
+                  hover:scale-125 hover:bg-amber-500
+                  active:scale-90 
+                  
+                  }
+                `}
+              >
+
+                ALARM RESET
+              </button>
+
             </div>   
+
+
           </div>
 
         </div>
@@ -540,10 +571,10 @@ const shadowColor = flashBlue
 
 
       {/* Right */}
-      <div className={`w-full h-full ${c2} bg-blue-600 flex-[2] flex flex-col items-center justify-evenly`}>
+      <div className={`w-full h-full ${c2} bg-blue-600 flex-[5] flex flex-col items-center justify-evenly`}>
 
         {/* Right  Top*/}
-        <div className={`w-full h-full bg-slate-100 flex-[1] flex flex-col items-center justify-evenly`}>
+        <div className={`w-full h-full bg-slate-100 flex-[2] flex flex-col items-center justify-evenly`}>
     
           <Line config={vars.G6} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} extra ={vars.O1}/>
           <Line config={vars.G7} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} extra ={vars.O2}/>
@@ -552,7 +583,7 @@ const shadowColor = flashBlue
         </div>
 
         {/* Right  Bottom*/}
-        <div className={`w-full h-full bg-slate-100 flex-[2] flex flex-col items-center justify-evenly text-black text-3xl `}>
+        <div className={`w-full h-full bg-slate-100 flex-[4] flex flex-col items-center justify-evenly text-black text-3xl `}>
           
           <Line config={vars.G8} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
           <Line config={vars.G9} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick}/>
@@ -565,11 +596,23 @@ const shadowColor = flashBlue
 
     </div>
 
-    {/* Blank tab */}
-    <div className={`w-full h-24 ${c2} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+    {/* Mod tab */}
+    <div className={`w-full h-32 ${c2} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black gap-16`}>
 
-      <div className={`w-16 h-16 ${c1} flex items-center justify-center `}>
+      <div className={`w-24 h-24 flex items-center justify-center `}>
+        <img
+          src="/sun.png"
+          alt="sun"
+          className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,180,0,0.8)]"
+        />
+      </div>
 
+      <div className={`w-24 h-24  flex items-center justify-center `}>
+        <img
+          src="/windy.png"
+          alt="wind"
+          className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(0,180,255,0.8)]"
+        />
       </div>
 
     </div>
@@ -586,6 +629,7 @@ const shadowColor = flashBlue
        <Line config = {vars.T1} history={history}  type={1} />
        <Line config = {vars.T2} history={history}  type={1} />
        <Line config = {vars.T3} history={history}  type={1} />
+       <Line config = {vars.T4} history={history}  type={1} />
 
     </div>
 
