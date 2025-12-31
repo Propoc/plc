@@ -15,8 +15,8 @@ const vars = {
   G3: { id: "G3", label: "Filtre Durumu", unit: "K" },
   G4: { id: "G4", label: "Genel Alarm", unit: "A" },  
   G5: { id: "G5", label: "Dönüş Sıcaklık Set", unit: "°C", addr: 16387 },
-  G6: { id: "G6", label: "Vantilatör EC Fan Set", unit: "%" , addr: 16484 }, //8448
-  G7: { id: "G7", label: "Aspiratör EC Fan Set", unit: "%" , addr: 16483 },  //8449
+  G6: { id: "G6", label: "Vantilatör EC Fan Set", unit: "%" , addr: 16484 },
+  G7: { id: "G7", label: "Aspiratör EC Fan Set", unit: "%" , addr: 16483 },
   G8: { id: "G8", label: "Üfleme Alt Limit Set", unit: "O" , addr : 16394 },
   G9: { id: "G9", label: "Üfleme Alt Limit", unit: "°C" , addr: 16450},
   G10: { id: "G10", label: "Üfleme Üst Limit Set", unit: "O" , addr : 16389 },
