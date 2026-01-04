@@ -44,10 +44,6 @@ function App() {
     return <div>Redirecting to login…</div>;
   }
 
-  {auth.user?.profile.email} 
-  {auth.user?.id_token}
-  {auth.user?.access_token} 
-  {auth.user?.refresh_token}
 
   if (auth.isAuthenticated) {
     return (
