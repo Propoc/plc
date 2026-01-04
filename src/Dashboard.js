@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useRef} from "react";
 
 import { motion } from "framer-motion";
 
@@ -328,26 +328,28 @@ export default function Dashboard( { user } ) {
   const [status, setStatus] = useState("Connection not started");
   const [topics, setTopics] = useState("tmsig-1/data");
   const [topicFile, setTopicFile] = useState("tmsig-1");
-  const [eventSource, setEventSource] = useState(null);
-
 
 
   const [writeStatus, setWriteStatus] = useState(0); // 0 Ready 1 Busy
-
   const [flashBlue, setFlashBlue] = useState(false);
   
+  const eventSourceRef = useRef(null);
 
   useEffect(() => {
 
-
-    if (eventSource) eventSource.close();
-
     setStatus("Connecting");
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+
 
     const url =
     `${API_BASE}/stream` +
     `?topics=${encodeURIComponent(topics)}`
+
     const es = new EventSource(url);
+    eventSourceRef.current = es;
 
     es.onopen = () => setStatus("Connected");
     es.onerror = () => setStatus("Error");
@@ -387,8 +389,10 @@ export default function Dashboard( { user } ) {
             
     };
 
-    setEventSource(es);
-    return () => es.close();
+    return () => {
+      es.close();
+      eventSourceRef.current = null;
+    };
  
   }, []);
 
