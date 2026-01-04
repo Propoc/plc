@@ -50,6 +50,184 @@ app.get('/test', (req, res) => {
     });
 });
 
+
+
+
+let clients = [];
+const activeTopicCounts = {}; // { "topicName": number_of_clients }
+const lastAlarmState = {};
+
+const generateUniqueId = () => {
+    const now = new Date();
+    const datePart = now.toISOString().substring(0, 10).replace(/-/g, ''); 
+    const timePart = now.toTimeString().substring(0, 5).replace(/:/g, ''); 
+    const randomPart = Math.random().toString(16).substring(2, 6).toUpperCase(); 
+    
+    return `client-${datePart}-${timePart}-${randomPart}`;
+};
+
+// Logic to manage AWS IoT Subscriptions dynamically
+function handleNewSubscription(topic) {
+  if (!activeTopicCounts[topic]) {
+    activeTopicCounts[topic] = 1;
+    device.subscribe(topic);
+    console.log(`📡 AWS Subscribed (New): ${topic}`);
+  } else {
+    activeTopicCounts[topic]++;
+  }
+}
+
+function handleRemovedSubscription(topic) {
+  if (activeTopicCounts[topic]) {
+    activeTopicCounts[topic]--;
+
+    if (activeTopicCounts[topic] === 0) {
+      delete activeTopicCounts[topic];
+      device.unsubscribe(topic);
+      console.log(`🔕 AWS Unsubscribed (Idle): ${topic}`);
+    }
+  }
+}
+
+
+// --------------------------------------------------
+// SSE stream catch
+// --------------------------------------------------
+
+app.get("/stream", (req, res) => {
+
+  const topic = (req.query.topic)
+  const clientId = generateUniqueId(); 
+
+  res.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+      "Access-Control-Allow-Origin": "*",
+  });
+
+
+  res.write(`: id: ${clientId} established\n\n`); 
+
+  const client = { res, topic, id: clientId };
+  clients.push(client);
+  console.log(`🌐 SSE client connected: ID ${clientId} for topic:`, topic);
+  handleNewSubscription(topic);
+
+  alarmBroadcast(topic);
+
+
+  req.on("close", () => {
+      handleRemovedSubscription(client.topic);
+      clients = clients.filter(c => c !== client);
+      console.log(`❌ SSE client disconnected: ID ${clientId}`); 
+  });
+});
+
+
+async function broadcast(topic, json) {
+  const payload = `data: ${JSON.stringify({
+    ok: true,
+    timestamp: Date.now(),
+    data: json
+  })}\n\n`;
+
+  if (String(json.R1) === "1") {
+    const baseTopic = topic.split("/")[0];
+    console.log(`🧹 Executing reset-safe for topic: ${topic}`);
+    await writePlcFile(baseTopic, "0/0/");
+  }
+
+  clients.forEach(client => {
+    if (client.topic === topic) {
+      client.res.write(payload);
+      console.log(`[SSE]  Sent to Client #${client.id} | Topic: ${topic} | Payload: ${payload}`);
+    }
+  });
+  await logAlarms(Date.now(), json, topic);
+  await alarmBroadcast(topic);
+}
+
+
+async function logAlarms(timestamp, data, topic) {
+  if (!data || typeof data !== "object") return;
+
+  const baseTopic = topic.split("/")[0];
+
+  if (!lastAlarmState[baseTopic]) {
+    lastAlarmState[baseTopic] = {};
+  }
+  const topicState = lastAlarmState[baseTopic];
+
+  const triggeredAlarms = [];
+
+  Object.keys(data).forEach(key => {
+    if (!key.startsWith("A")) return;
+
+    const current = Number(data[key]) === 1 ? 1 : 0;
+    const previous = topicState[key] ?? 0;
+
+    // EDGE: 0 -> 1
+    if (current === 1 && previous === 0) {
+      triggeredAlarms.push(key);
+    }
+
+    topicState[key] = current;
+  });
+
+  if (triggeredAlarms.length === 0) return;
+
+  const logEntry = JSON.stringify({
+    timestamp,
+    alarms: triggeredAlarms
+  }) + "\n";
+
+  const logPath = path.join(__dirname, `${baseTopic}_log.txt`);
+
+  try {
+
+    await fs.appendFile(logPath, logEntry);
+  } catch (err) {
+    console.error("[Alarm] Failed to write:", err);
+  }
+}
+
+
+async function alarmBroadcast(topic) {
+  const baseTopic = topic.split("/")[0];
+  const logPath = path.join(__dirname, `${baseTopic}_log.txt`);
+
+  let fileContent;
+  try {
+    fileContent = await fs.readFile(logPath, "utf8");
+  } catch {
+    return;
+  }
+
+  const alarms = fileContent
+    .split("\n")
+    .filter(Boolean)
+    .map(line => {
+      try { return JSON.parse(line); } catch { return null; }
+    })
+    .filter(Boolean);
+
+  const payload = `data: ${JSON.stringify({
+    alarm: true,
+    timestamp: Date.now(),
+    alarms
+  })}\n\n`;
+
+  clients.forEach(client => {
+    if (client.topic.includes(topic)) {
+      client.res.write(payload);
+      console.log(`[SSE] [Alarm] Sent to Client #${client.id} | Topic: ${topic} | Payload: ${payload}`);
+    }
+  });
+}
+
+
+
 app.post("/write", express.json(), async (req, res) => {
   try {
     const { address, value, topic } = req.body;
@@ -64,10 +242,14 @@ app.post("/write", express.json(), async (req, res) => {
       return res.status(400).json({ error: "Invalid address or value" });
     }
 
-    // Validate topic name (used as filename)
+    const baseTopic =
+      typeof topic === "string"
+        ? topic.replace(/^\/+/, "").split("/")[0]
+        : null;
+
     if (
-      typeof topic !== "string" ||
-      !/^[a-zA-Z0-9_-]+$/.test(topic)
+      !baseTopic ||
+      !/^[a-zA-Z0-9_-]+$/.test(baseTopic)
     ) {
       return res.status(400).json({ error: "Invalid topic name" });
     }
@@ -75,19 +257,12 @@ app.post("/write", express.json(), async (req, res) => {
     // EXACT content that will go into test.txt
     const content = `${address}/${value}/`;
 
-    const dir = "/srv/ftp/upload";
-    const file = path.join(dir, `${topic}.txt`);
-    const tmp = `${file}.tmp`;
+    writePlcFile(baseTopic,content)
 
-    
-    // atomic write (PLC-safe)
 
-    await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(tmp, content, "utf8");
-    await fs.rename(tmp, file);
+    res.json({ ok: true, file: `${baseTopic}.txt`, content });
 
-    console.log(`✍️ Wrote ${topic}.txt → ${content}`);
-    res.json({ ok: true, file: `${topic}.txt`, content });
+
     
   } catch (err) {
     console.error("❌ Write failed:", err);
@@ -96,91 +271,16 @@ app.post("/write", express.json(), async (req, res) => {
 });
 
 
-let clients = [];
-const activeTopicCounts = {}; // { "topicName": number_of_clients }
+async function writePlcFile(baseTopic, content) {
+  const dir = "/srv/ftp/upload";
+  const file = path.join(dir, `${baseTopic}.txt`);
+  const tmp = `${file}.tmp`;
 
-const generateUniqueId = () => {
-    const now = new Date();
-    const datePart = now.toISOString().substring(0, 10).replace(/-/g, ''); 
-    const timePart = now.toTimeString().substring(0, 5).replace(/:/g, ''); 
-    const randomPart = Math.random().toString(16).substring(2, 6).toUpperCase(); 
-    
-    return `client-${datePart}-${timePart}-${randomPart}`;
-};
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(tmp, content, "utf8");
+  await fs.rename(tmp, file);
 
-// Logic to manage AWS IoT Subscriptions dynamically
-function handleNewSubscriptions(topics) {
-    topics.forEach(topic => {
-        if (!activeTopicCounts[topic]) {
-            activeTopicCounts[topic] = 1;
-            device.subscribe(topic);
-            console.log(`📡 AWS Subscribed (New): ${topic}`);
-        } else {
-            activeTopicCounts[topic]++;
-        }
-    });
-}
-
-function handleRemovedSubscriptions(topics) {
-    topics.forEach(topic => {
-        if (activeTopicCounts[topic]) {
-            activeTopicCounts[topic]--;
-            if (activeTopicCounts[topic] === 0) {
-                delete activeTopicCounts[topic];
-                device.unsubscribe(topic);
-                console.log(`🔕 AWS Unsubscribed (Idle): ${topic}`);
-            }
-        }
-    });
-}
-
-
-// --------------------------------------------------
-// SSE stream catch
-// --------------------------------------------------
-
-app.get("/stream", (req, res) => {
-  const topics = (req.query.topics || "")
-    .split(",")
-    .map(t => t.trim())
-    .filter(Boolean);
-
-
-  const clientId = generateUniqueId(); 
-
-  res.writeHead(200, {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-      "Access-Control-Allow-Origin": "*",
-  });
-
-
-  res.write(`: id: ${clientId} established\n\n`); 
-
-  const client = { res, topics, id: clientId };
-  clients.push(client);
-  console.log(`🌐 SSE client connected: ID ${clientId} for topics:`, topics);
-  handleNewSubscriptions(topics);
-
-  req.on("close", () => {
-      handleRemovedSubscriptions(client.topics);
-      clients = clients.filter(c => c !== client);
-      console.log(`❌ SSE client disconnected: ID ${clientId}`); 
-  });
-});
-
-function broadcast(topic, json) {  // data: {"topic":"tmsig-1/data","timestamp":1766084012437,"data":{"T1":80}} 
-  const payload = `data: ${JSON.stringify({
-    timestamp: Date.now(),
-    data: json
-  })}\n\n`;
-  clients.forEach(client => {
-    if (client.topics.includes(topic)) {
-      client.res.write(payload);
-      console.log(`[SSE] Sent to Client #${client.id} | Topic: ${topic} | Payload: ${payload}`);
-    }
-  });
+  console.log(`✍️ Wrote ${baseTopic}.txt → ${content}`);
 }
 
 
@@ -208,7 +308,7 @@ device.on("message", (topic, payload) => {
     const json = JSON.parse(payload.toString());
     broadcast(topic, json);
   } catch {
-    console.log("⚠️ A Message recieved but JSON parsing went wrong");
+    console.log("⚠️ Message recieved but couldn't broadcast");
   }
 });
 
