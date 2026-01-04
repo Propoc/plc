@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useRef} from "react";
 import Dashboard from "./Dashboard";
 import { useAuth } from "react-oidc-context";
 
@@ -17,12 +17,16 @@ function App() {
   };
 
 
+  const redirectingRef = useRef(false);
+
   useEffect(() => {
     if (
       !auth.isLoading &&
       !auth.isAuthenticated &&
-      !auth.error
+      !auth.error &&
+      !redirectingRef.current
     ) {
+      redirectingRef.current = true;
       auth.signinRedirect();
     }
   }, [auth.isLoading, auth.isAuthenticated, auth.error]);

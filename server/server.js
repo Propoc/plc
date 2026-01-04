@@ -34,10 +34,6 @@ app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
-
-
 
 // API route Catchers
 app.get('/api', (req, res) => {

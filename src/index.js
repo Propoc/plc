@@ -12,18 +12,18 @@ const cognitoAuthConfig = {
   response_type: "code",
   scope: "openid email phone",
 
-
+  
   loadUserInfo: true,
   automaticSilentRenew: true,
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-
+  <React.StrictMode>
     <AuthProvider {...cognitoAuthConfig}>
       <App />
     </AuthProvider>
-
+  </React.StrictMode>
 );
 
 reportWebVitals();
