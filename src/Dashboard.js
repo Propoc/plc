@@ -387,7 +387,6 @@ export default function Dashboard( { user } ) {
             
     };
 
-
     setEventSource(es);
     return () => es.close();
  
