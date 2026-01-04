@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { motion } from "framer-motion";
 
 
@@ -315,7 +316,7 @@ const statusColors = {
 };
 
 
-export default function Dashboard( { accessToken } ) {
+export default function Dashboard( { user } ) {
 
   const initialHistory = Object.keys(vars).reduce((acc, key) => {
     acc[key] = [];
@@ -338,16 +339,14 @@ export default function Dashboard( { accessToken } ) {
 
   useEffect(() => {
 
-    if (!accessToken) return;  // Auth here
 
     if (eventSource) eventSource.close();
 
     setStatus("Connecting");
 
-      const url =
+    const url =
     `${API_BASE}/stream` +
-    `?topics=${encodeURIComponent(topics)}` +
-    `&token=${accessToken}`;
+    `?topics=${encodeURIComponent(topics)}`
     const es = new EventSource(url);
 
     es.onopen = () => setStatus("Connected");
