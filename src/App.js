@@ -9,6 +9,14 @@ function App() {
 
   const auth = useAuth();
 
+  const signOutRedirect = () => {
+    const clientId = "132nnak5fjs7880focne3ac7ot";
+    const logoutUri = "<logout uri>";
+    const cognitoDomain = "https://eu-central-1igfgickad.auth.eu-central-1.amazoncognito.com";
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+  };
+
+
   useEffect(() => {
     if (
       !auth.isLoading &&
@@ -30,6 +38,19 @@ function App() {
 
   if (!auth.isAuthenticated) {
     return <div>Redirecting to login…</div>;
+  }
+
+  if (auth.isAuthenticated) {
+    return (
+      <div>
+        <pre> Hello: {auth.user?.profile.email} </pre>
+        <pre> ID Token: {auth.user?.id_token} </pre>
+        <pre> Access Token: {auth.user?.access_token} </pre>
+        <pre> Refresh Token: {auth.user?.refresh_token} </pre>
+
+        <button onClick={() => auth.removeUser()}>Sign out</button>
+      </div>
+    );
   }
 
 
