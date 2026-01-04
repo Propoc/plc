@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import { motion } from "framer-motion";
 
 
@@ -345,7 +344,10 @@ export default function Dashboard( { accessToken } ) {
 
     setStatus("Connecting");
 
-    const url = `${API_BASE}/stream?topics=${encodeURIComponent(topics)}`;
+      const url =
+    `${API_BASE}/stream` +
+    `?topics=${encodeURIComponent(topics)}` +
+    `&token=${accessToken}`;
     const es = new EventSource(url);
 
     es.onopen = () => setStatus("Connected");

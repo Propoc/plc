@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Dashboard from "./Dashboard";
 import { useAuth } from "react-oidc-context";
 
@@ -8,6 +8,16 @@ import { useAuth } from "react-oidc-context";
 function App() {
 
   const auth = useAuth();
+
+  useEffect(() => {
+    if (
+      !auth.isLoading &&
+      !auth.isAuthenticated &&
+      !auth.error
+    ) {
+      auth.signinRedirect();
+    }
+  }, [auth.isLoading, auth.isAuthenticated, auth.error]);
 
 
   if (auth.isLoading) {
@@ -19,33 +29,12 @@ function App() {
   }
 
   if (!auth.isAuthenticated) {
-    return (
-      <div>
-        <button onClick={() => auth.signinRedirect()}>
-          Sign in
-        </button>
-      </div>
-    );
-  }
-
-  if (auth.isAuthenticated) {
-    return (
-      <div>
-        <pre> Hello: {auth.user?.profile.email} </pre>
-        <pre> ID Token: {auth.user?.id_token} </pre>
-        <pre> Access Token: {auth.user?.access_token} </pre>
-        <pre> Refresh Token: {auth.user?.refresh_token} </pre>
-
-        <button onClick={() => auth.removeUser()}>Sign out</button>
-      </div>
-    );
+    return <div>Redirecting to login…</div>;
   }
 
 
   return (
-
     <Dashboard accessToken={auth.user?.access_token} />
-
   );
 }
 
