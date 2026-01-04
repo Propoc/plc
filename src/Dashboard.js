@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { motion } from "framer-motion";
- 
+
 
 // Adress farese write balonu unit "O" ise On Off
 const vars = {
@@ -61,14 +61,16 @@ const But = function But(
     let clr = "bg-amber-200";
     let isbool = display === "O";
 
-    const handleBubble = () => {
+
+    const handleBubble = () => {       // Bubble aç kapa eğer on offsa direk gönder
 
       if (isbool && addr !== 0) {
 
         if (result === -1) return;
+
+
         let val = 1 - result;
         handleWriteClick(addr,val);
-
         return;
       }
 
@@ -76,7 +78,7 @@ const But = function But(
       setBubble(!bubble);
     };
 
-    const handleClick = () => {
+    const handleClick = () => {  // Text gönder
 
       handleWriteClick(addr,parseInt(text, 10));
       return;
@@ -314,7 +316,7 @@ const statusColors = {
 };
 
 
-export default function Dashboard() {
+export default function Dashboard( { accessToken } ) {
 
   const initialHistory = Object.keys(vars).reduce((acc, key) => {
     acc[key] = [];
@@ -329,13 +331,16 @@ export default function Dashboard() {
   const [eventSource, setEventSource] = useState(null);
 
 
-  const [writePreview, setWritePreview] = useState("");
-  const [writeStatus, setWriteStatus] = useState("");
+
+  const [writeStatus, setWriteStatus] = useState(0); // 0 Ready 1 Busy
 
   const [flashBlue, setFlashBlue] = useState(false);
   
 
   useEffect(() => {
+
+    if (!accessToken) return;  // Auth here
+
     if (eventSource) eventSource.close();
 
     setStatus("Connecting");
@@ -385,12 +390,12 @@ export default function Dashboard() {
     setEventSource(es);
     return () => es.close();
  
-  }, [topics]);
+  }, [accessToken]);
 
 
   const handleWriteClick = async (addr,val) => {
 
-    setWriteStatus("Sending…");
+    setWriteStatus(1);
     
     try {
       const res = await fetch(`${API_BASE}/write`, {
@@ -407,16 +412,15 @@ export default function Dashboard() {
 
 
       if (!res.ok) {
-        setWriteStatus("❌ Server rejected write");
+        setWriteStatus(0);
         console.log("Write Fail " + json.error);
         return;
       }
-      setWritePreview(json.content);
-      setWriteStatus("✅ Written to test.txt");
+      setWriteStatus(0);
       console.log("Write Done " + json.file + " " + json.content);
 
     } catch {
-      setWriteStatus("❌ Network error");
+      console.log("Write Catch ");
     }
   };
 
