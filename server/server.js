@@ -127,7 +127,6 @@ app.get("/stream", (req, res) => {
 
 async function broadcast(topic, json) {
   const payload = `data: ${JSON.stringify({
-    ok: true,
     timestamp: Date.now(),
     data: json
   })}\n\n`;
@@ -143,7 +142,9 @@ async function broadcast(topic, json) {
       client.res.write(payload);
       console.log(`[SSE]  Sent to Client #${client.id} | Topic: ${topic} | Payload: ${payload}`);
     }
+  
   });
+
   await logAlarms(Date.now(), json, topic);
   await alarmBroadcast(topic);
 }
@@ -219,7 +220,7 @@ async function alarmBroadcast(topic) {
   })}\n\n`;
 
   clients.forEach(client => {
-    if (client.topic.includes(topic)) {
+    if (client.topic === topic) {
       client.res.write(payload);
       console.log(`[SSE] [Alarm] Sent to Client #${client.id} | Topic: ${topic} | Payload: ${payload}`);
     }
@@ -260,8 +261,7 @@ app.post("/write", express.json(), async (req, res) => {
     writePlcFile(baseTopic,content)
 
 
-    res.json({ ok: true, file: `${baseTopic}.txt`, content });
-
+    res.json({file: `${baseTopic}.txt`, content });
 
     
   } catch (err) {

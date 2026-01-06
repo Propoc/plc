@@ -1,4 +1,0 @@
-{"timestamp":1767554830249,"alarms":["A5"]}
-{"timestamp":1767554837252,"alarms":["A1"]}
-{"timestamp":1767554843276,"alarms":["A5"]}
-{"timestamp":1767554852174,"alarms":["A5"]}
