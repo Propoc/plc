@@ -32,6 +32,8 @@ const vars = {
   G9: { id: "G9", label: "Üfleme Alt Limit", unit: "°C" , addr: 16450},
   G10: { id: "G10", label: "Üfleme Üst Limit Set", unit: "O" , addr : 16389 },
   G11: { id: "G11", label: "Üfleme Üst Limit", unit: "°C" , addr: 16393},
+  O1: { id: "G12", label: "Vantilatör O", unit: "%" },
+  O2: { id: "G13", label: "Aspiratör O", unit: "%" },
 
   D1: { id: "D1", label: "Vantilatör EC Fan Durumu", unit: "O" },
   D2: { id: "D2", label: "Aspiratör EC Fan Durumu", unit: "O" },
@@ -54,8 +56,7 @@ const vars = {
   A6: { id: "A6", label: "VRF Alarm", unit: "A" },
   A7: { id: "A7", label: "Yangın Alarm", unit: "A" },
 
-  O1: { id: "O1", label: "Vantilatör O", unit: "%" },
-  O2: { id: "O2", label: "Aspiratör O", unit: "%" },
+
 
   R1: { id: "R1", label: "Alarm Reset", unit: "O", addr: 9008 },
 };
@@ -150,7 +151,7 @@ const But = function But(
 
     if (isbool) { 
 
-      if (addr !== 0){           // Aç Kapa Switch
+      if (addr !== 0){  // Aç Kapa Switch
         return(
           <div className="h-full w-full relative">
             <label className=' h-full w-full flex select-none items-center justify-center'>
@@ -410,16 +411,8 @@ const API_BASE = process.env.REACT_APP_API_BASE ||  "http://localhost:4000";
 
 const historyLen = 15;
 
-const statusColors = {
-  Connected: { dot: "#4ade80", shadow: "rgba(74, 222, 128, 0.5)", text: "Connected" },
-  Connecting: { dot: "#facc15", shadow: "rgba(250, 204, 21, 0.5)", text: "Connecting" },
-  Error: { dot: "#f87171", shadow: "rgba(248, 113, 113, 0.5)", text: "Connection Error" }
-};
 
-
-
-
-export default function Dashboard( { setPage } ) {
+export default function Dashboard( { setPage , projectTopic } ) {
 
   const initialHistory = Object.keys(vars).reduce((acc, key) => {
     acc[key] = [];
@@ -433,17 +426,21 @@ export default function Dashboard( { setPage } ) {
     return acc;
   }, {});
 
+
   const [history, setHistory] = useState(initialHistory);
   const [alarmHistory, setAlarmHistory] = useState([]);
 
   const [status, setStatus] = useState("Connection not started");
-  const [topic, setTopic] = useState("tmsig-1/data");
+  const [topic, setTopic] = useState("none");
 
   const [dataPulse, setDataPulse] = useState(false);
   const [writeStatus, setWriteStatus] = useState(0); // 0 Ready 1 Busy (Addr) Written but awaiting confirmation
   
   const writeBufferRef = useRef(null);
   const eventSourceRef = useRef(null);
+
+
+  setTopic(projectTopic);
 
   useEffect(() => {
 
@@ -646,7 +643,7 @@ export default function Dashboard( { setPage } ) {
       
     {/* Top Bar */}
     <div
-      className={`w-full h-32 ${c1} flex justify-center items-center`}
+      className={`w-full h-32 ${c1} flex justify-center items-center border-2 border-black`}
     >
 
       <div className={`w-full h-full  flex-[1] flex justify-center items-center `}>
@@ -694,10 +691,10 @@ export default function Dashboard( { setPage } ) {
     </div>
 
     {/* Language & Date */}
-    <div className={`w-full h-12 ${c2} flex items-center`}>
-        <button className="w-20 h-full"> <img src="/tr.png"alt="sun" className="w-full h-full object-contain"/> </button>
-        <button className="w-20 h-full"> <img src="/en.png"alt="sun" className="w-full h-full object-contain"/> </button>
-        <button className="w-20 h-full"> <img src="/ger.png"alt="sun" className="w-full h-full object-contain"/> </button>
+    <div className={`w-full h-12 ${c2} flex items-center border-l-2 border-r-2 border-black`}>
+        <button className="w-20 h-10"> <img src="/tr.png"alt="sun" className="w-full h-full object-contain"/> </button>
+        <button className="w-20 h-10"> <img src="/en.png"alt="sun" className="w-full h-full object-contain"/> </button>
+        <button className="w-20 h-10"> <img src="/ger.png"alt="sun" className="w-full h-full object-contain"/> </button>
 
         <div className={`w-1/5   h-full ml-auto  flex items-center justify-center text-black text-3xl`}>
           {new Date().toLocaleDateString()}
@@ -705,18 +702,17 @@ export default function Dashboard( { setPage } ) {
     </div>
 
     {/* Info Tab*/}
-    <div className={`w-full h-12 ${c1} flex items-center mb-8 border-black border-2`}>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl`}> Proje Adı </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Perlus </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Proje No </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> tmsig-1 </div>
+    <div className={`w-full h-12 ${c1} flex items-center border-black border-2`}>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-black`}> Proje No </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> 123456 </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Kullanıcı </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Admin </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Cihaz </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> tmsig-1/0 </div>
     </div>
 
-    <div className={`w-full h-12 ${c1} flex items-center mb-8 border-black border-2 `}>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl`}> Kullanıcı Adı </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> admin </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Cihaz No </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> 123123 </div>
+    <div className={`w-full h-12 ${c2} flex items-center justify-center text-black text-3xl border-l-2 border-r-2 border-black`}>
+
     </div>
 
     {/* Kullanıcı set tab */}

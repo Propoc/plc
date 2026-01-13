@@ -153,7 +153,9 @@ async function broadcast(topic, json) {
 async function logAlarms(timestamp, data, topic) {
   if (!data || typeof data !== "object") return;
 
-  const baseTopic = topic.split("/")[0];
+  const parts = topic.replace(/^\/+/, "").split("/");
+  const baseTopic = parts[0];
+  const slave = parts[1];
 
   if (!lastAlarmState[baseTopic]) {
     lastAlarmState[baseTopic] = {};
@@ -180,6 +182,7 @@ async function logAlarms(timestamp, data, topic) {
 
   const logEntry = JSON.stringify({
     timestamp,
+    slave,
     alarms: triggeredAlarms
   }) + "\n";
 
@@ -195,7 +198,11 @@ async function logAlarms(timestamp, data, topic) {
 
 
 async function alarmBroadcast(topic) {
-  const baseTopic = topic.split("/")[0];
+
+  const parts = topic.replace(/^\/+/, "").split("/");
+  const baseTopic = parts[0];
+  const slave = parts[1];
+
   const logPath = path.join(__dirname, `${baseTopic}_log.txt`);
 
   let fileContent;
@@ -211,8 +218,8 @@ async function alarmBroadcast(topic) {
     .map(line => {
       try { return JSON.parse(line); } catch { return null; }
     })
-    .filter(Boolean);
-
+    .filter(entry => entry && entry.slave === slave);
+   
   const payload = `data: ${JSON.stringify({
     alarm: true,
     timestamp: Date.now(),
@@ -233,37 +240,18 @@ app.post("/write", express.json(), async (req, res) => {
   try {
     const { address, value, topic } = req.body;
 
-    // frontend sends raw strings
-    if (
-      typeof address !== "string" ||
-      typeof value !== "string" ||
-      !/^\d+$/.test(address) ||
-      !/^\d+$/.test(value)
-    ) {
-      return res.status(400).json({ error: "Invalid address or value" });
-    }
+    const parts = topic.replace(/^\/+/, "").split("/");
 
-    const baseTopic =
-      typeof topic === "string"
-        ? topic.replace(/^\/+/, "").split("/")[0]
-        : null;
-
-    if (
-      !baseTopic ||
-      !/^[a-zA-Z0-9_-]+$/.test(baseTopic)
-    ) {
-      return res.status(400).json({ error: "Invalid topic name" });
-    }
+    const baseTopic = parts[0];
+    const slave = parts[1];
 
     // EXACT content that will go into test.txt
-    const content = `${address}/${value}/`;
+    const content = `${address}/${value}/${slave}/`;
 
     writePlcFile(baseTopic,content)
-
-
     res.json({file: `${baseTopic}.txt`, content });
-
     
+
   } catch (err) {
     console.error("❌ Write failed:", err);
     res.status(500).json({ error: err });
