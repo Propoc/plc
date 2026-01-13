@@ -93,7 +93,8 @@ function App() {
 
   if (auth.isAuthenticated) {
 
-    const userName = auth.user?.signInUserSession?.idToken?.payload?.["cognito:username"];
+    const userName = auth.user?.profile?.["cognito:username"] || auth.user?.profile?.["preferred_username"];
+    console.log(userName);
     const visibleProjects =
     userName === "nemli"
         ? projects
