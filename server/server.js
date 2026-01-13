@@ -126,7 +126,7 @@ async function broadcast(topic, json) {
   if (String(json.R1) === "1") {
     const baseTopic = topic.split("/")[0];
     console.log(`🧹 Executing reset-safe for topic: ${topic}`);
-    await writePlcFile(baseTopic, "0/0/");
+    await writePlcFile(baseTopic, "0/0/0/");
   }
 
   clients.forEach(client => {
@@ -149,11 +149,10 @@ async function logAlarms(timestamp, data, topic) {
   const baseTopic = parts[0];
   const slave = parts[1];
 
-  if (!lastAlarmState[baseTopic]) {
-    lastAlarmState[baseTopic] = {};
-  }
-  const topicState = lastAlarmState[baseTopic];
+  lastAlarmState[baseTopic] ??= {};
+  lastAlarmState[baseTopic][slave] ??= {};
 
+  const topicState = lastAlarmState[baseTopic];
   const triggeredAlarms = [];
 
   Object.keys(data).forEach(key => {
@@ -181,7 +180,6 @@ async function logAlarms(timestamp, data, topic) {
   const logPath = path.join(__dirname, `${baseTopic}_log.txt`);
 
   try {
-
     await fs.appendFile(logPath, logEntry);
   } catch (err) {
     console.error("[Alarm] Failed to write:", err);
@@ -283,7 +281,9 @@ app.post("/clear", express.json(), async (req, res) => {
       kept.length ? kept.join("\n") + "\n" : ""
     );
 
-
+    if (lastAlarmState[baseTopic]?.[slave]) {
+      delete lastAlarmState[baseTopic][slave];
+    }
 
     res.json({file: `${baseTopic}.txt`, slave, removed});
 

@@ -31,8 +31,8 @@ const vars = {
   G9: { id: "G9", label: "Üfleme Alt Limit", unit: "°C" , addr: 16450},
   G10: { id: "G10", label: "Üfleme Üst Limit Set", unit: "O" , addr : 16389 },
   G11: { id: "G11", label: "Üfleme Üst Limit", unit: "°C" , addr: 16393},
-  O1: { id: "G12", label: "Vantilatör O", unit: "%" },
-  O2: { id: "G13", label: "Aspiratör O", unit: "%" },
+  G12: { id: "G12", label: "Vantilatör O", unit: "%" },
+  G13: { id: "G13", label: "Aspiratör O", unit: "%" },
 
   D1: { id: "D1", label: "Vantilatör EC Fan Durumu", unit: "O" },
   D2: { id: "D2", label: "Aspiratör EC Fan Durumu", unit: "O" },
@@ -351,7 +351,7 @@ const Line = function Line(
           {config.label}
         </div>  
         <div className={`h-full flex-[3] min-w-0 flex items-center justify-center `}>
-            <But display = {config.unit}   result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
+            <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
         </div>   
 
         <div className={`h-full flex-[3] min-w-0 flex items-center justify-center text-black`}>
@@ -717,7 +717,7 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
     </div>
 
     {/* Info Tab*/}
-    <div className={`w-full h-12 ${c1} flex items-center border-black border-2 border-l-4 border-r-4`}>
+    <div className={`w-full h-12 ${c1} flex items-center border-black border-2`}>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-amber-800 text-3xl border-black`}> Proje No </div>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {projectName} </div>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-amber-800 text-3xl border-l-4 border-black`}> Kullanıcı </div>
