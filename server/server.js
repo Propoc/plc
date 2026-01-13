@@ -44,14 +44,6 @@ app.get('/api', (req, res) => {
     });
 });
 
-app.get('/test', (req, res) => {
-    res.json({ 
-        message: 'Server is working!',
-    });
-});
-
-
-
 
 let clients = [];
 const activeTopicCounts = {}; // { "topicName": number_of_clients }

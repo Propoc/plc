@@ -93,7 +93,7 @@ function App() {
 
   if (auth.isAuthenticated) {
 
-    const userName = user.attributes.name;
+    const userName = auth.user.attributes.name;
     const visibleProjects =
     userName === "all"
         ? projects
