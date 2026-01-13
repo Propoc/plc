@@ -1,6 +1,6 @@
 
 
-export default function Project( { setPage , user , visibleProjects} ) {
+export default function Project( { setPage , user , visibleProjects, setSelectedProject} ) {
 
     const c1 = "bg-[#60B649]";
     const c2 = "bg-gray-300";
