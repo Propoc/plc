@@ -13,7 +13,6 @@ ring.register()
 
 
 
-
 // Adress farese write balonu unit "O" ise On Off
 const vars = {
   T1: { id: "T1", label: "Taze Hava Sıcaklık Bilgisi", unit: "°C" },
@@ -48,8 +47,8 @@ const vars = {
 
 
 
-  A1: { id: "A1", label: "Taze Hava Filtre Kirli", unit: "A" },
-  A2: { id: "A2", label: "Dönüş Hava Kirli ", unit: "A" },
+  A1: { id: "A1", label: "Taze Hava Filtresi Kirli", unit: "A" },
+  A2: { id: "A2", label: "Dönüş Havası Kirli ", unit: "A" },
   A3: { id: "A3", label: "Vantilatör EC Fan Arıza", unit: "A" },
   A4: { id: "A4", label: "Aspiratör EC Fan Arıza", unit: "A" },
   A5: { id: "A5", label: "Acil Durum Arıza", unit: "A",},
@@ -193,7 +192,7 @@ const But = function But(
             className={`
               w-fit h-fit rounded-full cursor-default
               flex items-center justify-center text-black
-              ${textsize === "text-3xl" ? "px-8 py-2" : "px-4 py-1"}  
+              ${textsize === "text-3xl" ? "px-5 py-2" : "px-4 py-1"}  
               ${bg}
             `+ textsize}  >
             {final}
@@ -257,7 +256,7 @@ const But = function But(
               w-fit h-fit rounded-full cursor-pointer
               flex items-center justify-center text-black
               ${loading ? "bg-gray-500 cursor-wait" : `${clr} hover:bg-none hover:bg-orange-700`}
-              ${textsize === "text-3xl" ? "px-4 py-2" : "px-4 py-1"}
+              ${textsize === "text-3xl" ? "px-4 py-2" : "px-2 py-1"}
               ${textsize}
             `}
           >
@@ -274,7 +273,7 @@ const But = function But(
           className={`
             w-fit h-fit rounded-full cursor-default ${clr}
             flex items-center justify-center text-black bg-emerald-700
-            ${textsize === "text-3xl" ? "px-8 py-2" : "px-4 py-1"}  
+            ${textsize === "text-3xl" ? "px-8 py-2" : "px-2 py-1"}  
           `+ textsize}  >
           {final}
         </button>
@@ -301,10 +300,10 @@ const Line = function Line(
         onClick={() => handleWriteClick(9008, 1)}
         disabled={loading}
         className={`
-          w-fit h-fit rounded-full text-4xl
-          flex items-center justify-center text-black px-8 py-4
+          w-fit h-fit rounded-full text-3xl
+          flex items-center justify-center text-black px-8 py-8
           cursor-pointer select-none
-          ${loading ? "bg-amber-400 cursor-wait" : "bg-rose-400 hover:bg-amber-500"}
+          ${loading ? "bg-amber-400 cursor-wait" : "bg-rose-400  hover:bg-amber-500"}
         `}
         animate={
           loading
@@ -328,10 +327,10 @@ const Line = function Line(
     if (type === 3) {
     return (
       <div className={`w-full h-16  flex items-center justify-center`}>
-        <div className={`w-full h-full  flex-[6] flex items-center justify-center text-black text-3xl `}>
+        <div className={`h-full flex-[6] flex items-center justify-center text-black ${textsize} `}>
           {config.label}
         </div>      
-        <div className={`w-full h-full  flex-[2] flex items-center justify-center text-black text-3xl `}>
+        <div className={`h-full  flex-[2] flex items-center justify-center text-black ${textsize} `}>
           <But display = {config.unit}   result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
         </div>      
       </div>
@@ -341,24 +340,24 @@ const Line = function Line(
 
   if (type === 2) {
 
-      const extraHistory = history[extra.id] || [];
-      const extraEntry = extraHistory.at(-1);
-      const extraValue = extraEntry ? extra.val : -1;
+    const extraHistory = history[extra.id] || [];
+    const extraEntry = extraHistory.at(-1);
+    const extraValue = extraEntry ? extra.val : -1;
 
 
     return (
-      <div className={`w-full  h-8  flex items-center justify-cente `}>
-        <div className={` h-full slate-100 flex-[5] flex items-center justify-center text-black text-3xl `}>
+      <div className={`w-full  h-8  flex items-center justify-center `}>
+        <div className={`h-full slate-100 flex-[10] flex items-center justify-center text-black ${textsize}`}>
           {config.label}
-        </div>
-        <div className={`h-full flex-[1] min-w-0 flex items-center justify-center `}>
+        </div>  
+        <div className={`h-full flex-[3] min-w-0 flex items-center justify-center `}>
             <But display = {config.unit}   result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
         </div>   
 
-        <div className={` h-full flex-[1] min-w-0 flex items-center justify-center text-black text-3xl`}>
+        <div className={`h-full flex-[3] min-w-0 flex items-center justify-center text-black`}>
             <But display = {extra.unit}   result = {extraValue} addr = {extra.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
         </div>       
-        <div className="h-full flex-[1] flex items-center justify-center">
+        <div className='h-full flex-[2] flex items-center justify-center'>
           {loading && (<l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black" ></l-ring>)}
         </div>
       </div>
@@ -371,13 +370,13 @@ const Line = function Line(
 
     return (
       <div className={`w-full h-12 flex items-center justify-center`}>
-        <div className={`h-full flex-[6] flex items-center justify-center text-black text-3xl `}>
+        <div className={`h-full flex-[6] flex items-center justify-center text-black ${textsize}`}>
           {config.label}
         </div>    
-        <div className={`h-full flex-[1] flex items-center justify-end pr-8 text-black text-3xl `}>
+        <div className={`h-full flex-[1] flex items-center justify-end pr-8 text-black ${textsize}`}>
           {final}
         </div>      
-        <div className={`h-full flex-[1] flex items-center justify-start text-black text-3xl `}>
+        <div className={`h-full flex-[1] flex items-center justify-start text-black ${textsize}`}>
           {config.unit}
         </div>  
       </div>
@@ -386,8 +385,8 @@ const Line = function Line(
   }
 
 return(
-  <div className={`w-full h-[54px] flex items-center justify-center `}>
-    <div className={`h-full flex-[6] flex items-center justify-center text-black ` + textsize}>
+  <div className={`w-full h-10 flex items-center justify-center `}>
+    <div className={`h-full flex-[6] flex items-center justify-center text-black ${textsize}` }>
       {config.label}
     </div>
     <div className={`h-full flex-[3] min-w-0 flex items-center justify-center`}>
@@ -411,7 +410,7 @@ const API_BASE = process.env.REACT_APP_API_BASE ||  "http://localhost:4000";
 const historyLen = 15;
 
 
-export default function Dashboard( { setPage , projectTopic , user , proje } ) {
+export default function Dashboard( { setPage , projectTopic , user , projectName } ) {
 
   const initialHistory = Object.keys(vars).reduce((acc, key) => {
     acc[key] = [];
@@ -572,6 +571,23 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
     }
   };
 
+  async function clearHistory() {
+  try {
+    const res = await fetch(`${API_BASE}/clear`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic: topic,
+      }),
+    });
+
+    const json = await res.json();
+    console.log("Cleared" , json);
+  } catch (err) {
+    console.error("Clear failed:", err);
+  }
+}
+
   function getAlarmLabel(code) {
   return vars?.[code]?.label || code;
   }
@@ -648,39 +664,36 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
       className={`w-full h-32 ${c1} flex justify-center items-center border-2 border-black`}
     >
 
-      <div className={`w-full h-full  flex-[1] flex justify-center items-center `}>
-        <div className={`w-full h-full ml-4 flex justify-center items-center `}>
-          <img
-            src="/per.png"
-            alt="sun"
-            className="w-full h-full object-contain"
-          />
-        </div>
-
+      <div className={`h-full flex-[1] flex justify-center items-center `}>
+        <img
+          src="/per.png"
+          alt="sun"
+          className="w-full h-full ml-4 object-contain"
+        />
       </div>
 
-      <div className="w-full h-full flex-[3] flex justify-center items-center text-5xl text-center">
-        AKSCON OTOMASYON KONTROL SİSTEMLERİ
+      <div className="h-full flex-[3] flex justify-center items-center text-4xl text-center">
+        {projectName}
       </div>  
 
-      <div className="w-full h-full flex-[1] flex justify-center items-center">
-        <div className={`w-fit h-fit flex flex-[1] justify-center items-center `}>
+      <div className="h-full flex-[1] flex justify-center items-center">
+
+        <div className={`h-fit flex flex-[1] justify-center items-center `}>
           {dataPulse && (<Pulsar size="80" speed="2" color="red"/>)}
 
         </div>
 
+        <div className="h-full flex-[1] flex justify-center items-center">
 
-        <div className="w-full h-full flex-[1] flex justify-center items-center">
-
-          <Ripples size="120" speed={statusSpeed} color={statusColor}  />
+          <Ripples size="100" speed={statusSpeed} color={statusColor}  />
 
         </div>
 
-        <div className={`w-fit h-fit flex flex-[1] justify-center items-center cursor-pointer`}>
+        <div className={`h-full flex flex-[1] justify-center items-center cursor-pointer`}>
           <img
             src="/enter.png"
             alt="sun"
-            className="w-20 h-20 object-contain]"
+            className="w-full h-full object-contain"
             onClick={() => setPage("project")}
           />
         </div>
@@ -704,24 +717,26 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
     </div>
 
     {/* Info Tab*/}
-    <div className={`w-full h-12 ${c1} flex items-center border-black border-2`}>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-black`}> Proje No </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {proje} </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Kullanıcı </div>
+    <div className={`w-full h-12 ${c1} flex items-center border-black border-2 border-l-4 border-r-4`}>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-amber-800 text-3xl border-black`}> Proje No </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {projectName} </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-amber-800 text-3xl border-l-4 border-black`}> Kullanıcı </div>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {user} </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Cihaz </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-amber-800 text-3xl border-l-4  border-black`}> Cihaz </div>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {topic} </div>
     </div>
 
-    <div className={`w-full h-12 ${c2} flex items-center justify-center text-black text-3xl border-l-2 border-r-2 border-black`}>
+    <div className={`w-full h-8 ${c2} flex items-center justify-center text-black text-3xl border-l-2 border-r-2 border-black`}>
 
     </div>
 
     {/* Kullanıcı set tab */}
-    <div className={`w-full h-12 ${c1} flex items-center justify-center text-black text-3xl border-2 border-black`}> Kullanıcı Set Bilgileri </div>
+    <div className={`w-full h-14 ${c1} flex items-center justify-center text-black text-3xl border-2 border-black`}> 
+      Kullanıcı Set Bilgileri 
+    </div>
 
     {/* Kullanıcı set */}
-    <div className={`w-full h-[360px] ${c2} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+    <div className={`w-full h-[400px] ${c2} flex items-center justify-center border-2 border-t-0 border-black`}>
       
       {/* Left */}
       <div className={`w-full h-full ${c2} flex-[5] flex flex-col items-center justify-evenly text-black text-3xl `}>
@@ -734,15 +749,15 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
       </div>
       
       {/* Middle */}
-      <div className={`w-full h-full ${c2} flex-[3] flex flex-col items-center justify-center text-black text-3xl`}>
+      <div className={`w-full h-full ${c2} flex-[5] flex flex-col items-center justify-center`}>
         
-        <div  className={`w-full h-full flex-[1] border-black border-l-2 border-r-2  flex flex-col items-center justify-center text-black text-3xl `}>
+        <div  className={`w-full h-full flex-[1] border-black border-l-2 border-r-2  flex flex-col items-center justify-center`}>
 
           <Line config={vars.G5} history={history} handleWriteClick={handleWriteClick} loading={isLoading(vars.G5.addr)}/>
 
         </div>
 
-        <div className={`w-full h-full  flex-[1] border-t-2 border-black border-l-2 border-r-2 flex items-center justify-center text-black text-3xl`}>
+        <div className={`w-full h-full  flex-[1] border-t-2 border-black border-l-2 border-r-2 flex items-center justify-center`}>
 
           <Line config={vars.R1} history={history} type = {4} handleWriteClick={handleWriteClick} loading={isLoading(vars.R1.addr)}/>
 
@@ -760,11 +775,10 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
           <Line config={vars.G6} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G6.addr)} extra ={vars.O1}/>
           <Line config={vars.G7} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G7.addr)} extra ={vars.O2}/>
 
-
         </div>
 
         {/* Right  Bottom*/}
-        <div className={`w-full h-full flex-[4] flex flex-col items-center justify-evenly text-black text-3xl `}>
+        <div className={`w-full h-full flex-[4] flex flex-col items-center justify-evenly text-black`}>
           
           <Line config={vars.G8} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G8.addr)}/>
           <Line config={vars.G9} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G9.addr)}/>
@@ -778,7 +792,7 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
     </div>
 
     {/* Mod tab */}
-    <div className={`w-full h-32 ${c2} flex items-center justify-evenly text-black text-3xl border-2 border-t-0 border-black gap-16`}>
+    <div className={`w-full h-32 ${c2} flex items-center justify-evenly border-2 border-t-0 border-black gap-16`}>
              
       <div className={`w-24 h-24 flex flex-[1] items-center justify-center `}>
 
@@ -796,19 +810,19 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
     </div>
 
     {/* Sensör  tab*/}
-    <div className={`w-full h-12 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+    <div className={`w-full h-14 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
         Sensör Bilgileri
     </div>
             
     {/* Sensör */}
-    <div className={`w-full h-fit ${c2} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+    <div className={`w-full h-32 ${c2} flex items-center justify-center border-2 border-t-0 border-black`}>
       
-      <div className={`w-full h-fit ${c2} flex flex-[1] flex-col items-center justify-center text-black text-3xl  border-black`}>
+      <div className={`h-fit ${c2} flex flex-[1] flex-col items-center gap-2 justify-around border-black`}>
           <Line config = {vars.T1} history={history}  type={1} />
           <Line config = {vars.T2} history={history}  type={1} />
       </div>
 
-      <div className={`w-full h-fit ${c2} flex flex-[1] flex-col items-center justify-center text-black text-3xl  border-black`}>
+      <div className={`h-fit ${c2} flex flex-[1] flex-col items-center gap-2 justify-around  border-black`}>
         <Line config = {vars.T3} history={history}  type={1} />
         <Line config = {vars.T4} history={history}  type={1} />
       </div>
@@ -817,15 +831,15 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
 
     
     {/* Durum  tab*/}
-    <div className={`w-full h-12 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+    <div className={`w-full h-14 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
         Durum Bilgileri
     </div>
             
     {/* Durum */}
-    <div className={`w-full h-fit ${c2} flex items-center justify-center text-black text-3xl gap-2  border-2 border-t-0 border-black`}>
+    <div className={`w-full h-[400px] ${c2} flex items-center justify-center border-2 border-t-0 border-black`}>
 
 
-      <div className={`w-full h-fit ${c2} flex flex-[1] flex-col items-center justify-center text-black text-3xl  border-black`}>
+      <div className={`w-full h-fit ${c2} flex flex-[1] flex-col items-center gap-2 justify-around border-black`}>
           
         <Line config={vars.D1} history={history} type={3}/>
         <Line config={vars.D2} history={history} type={3}/>            
@@ -835,7 +849,7 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
 
       </div>
 
-      <div className={`w-full h-fit ${c2} flex flex-[1] flex-col items-center justify-center text-black text-3xl  border-black`}>
+      <div className={`w-full h-fit ${c2} flex flex-[1] flex-col items-center gap-4 justify-around border-black`}>
 
 
         <Line config={vars.D6} history={history} type={3}/>
@@ -851,18 +865,28 @@ export default function Dashboard( { setPage , projectTopic , user , proje } ) {
     </div>
     
     {/* Arıza tab*/}
-    <div className={`w-full h-12 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
-        Arıza Bilgileri
+    <div className={`relative w-full h-14 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
+      <button
+        className=" absolute right-8 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-400 via-sky-500 to-blue-400
+          text-white text-lg shadow-lg shadow-black/20 hover:scale-125 transition
+        "
+        onClick={clearHistory}
+      >
+        Temizle
+      </button>
+
+
+      Arıza Bilgileri
     </div>
 
     <div className={`w-full h-fit ${c2} flex items-center justify-center text-red-600 text-3xl border-2 border-t-0 border-black`}>
-      <div className={`w-full h-12 ${c2} flex flex-[1] items-center justify-center text-red-600 text-3xl  border-black`}>
+      <div className={`w-full h-12 ${c2} flex flex-[1] items-center justify-center  border-black`}>
         Tarih
       </div>
-      <div className={`w-full h-12 ${c2} flex flex-[1] items-center justify-center text-red-600 text-3xl border-l-2 border-r-2 border-black`}>
+      <div className={`w-full h-12 ${c2} flex flex-[1] items-center justify-center border-l-2 border-r-2 border-black`}>
         Saat
       </div>
-      <div className={`w-full h-12 ${c2} flex flex-[5] items-center justify-center text-red-600 text-3xl  border-black`}>
+      <div className={`w-full h-12 ${c2} flex flex-[5] items-center justify-center border-black`}>
         Açıklama
       </div>
     </div>

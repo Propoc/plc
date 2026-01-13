@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import Test from './Test';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from "react-oidc-context";
 
@@ -28,5 +29,12 @@ root.render(
   </React.StrictMode>
 );
 
+/*
+root.render(
+  <React.StrictMode>
+    <Test />
+  </React.StrictMode>
+);
+*/
 
 reportWebVitals();

@@ -198,11 +198,8 @@ async function alarmBroadcast(topic) {
   const logPath = path.join(__dirname, `${baseTopic}_log.txt`);
 
   let fileContent;
-  try {
-    fileContent = await fs.readFile(logPath, "utf8");
-  } catch {
-    return;
-  }
+  fileContent = await fs.readFile(logPath, "utf8");
+
 
   const alarms = fileContent
     .split("\n")
@@ -233,7 +230,6 @@ app.post("/write", express.json(), async (req, res) => {
     const { address, value, topic } = req.body;
 
     const parts = topic.replace(/^\/+/, "").split("/");
-
     const baseTopic = parts[0];
     const slave = parts[1];
 
@@ -249,6 +245,54 @@ app.post("/write", express.json(), async (req, res) => {
     res.status(500).json({ error: err });
   }
 });
+
+
+app.post("/clear", express.json(), async (req, res) => {
+  try {
+    const { topic } = req.body;
+
+    const parts = topic.replace(/^\/+/, "").split("/");
+    const baseTopic = parts[0];
+    const slave = parts[1];
+
+    const logPath = path.join(__dirname, `${baseTopic}_log.txt`);
+
+    let fileContent;
+    fileContent = await fs.readFile(logPath, "utf8");
+
+    const lines = fileContent.split("\n").filter(Boolean);
+
+    let removed = 0;
+
+    const kept = lines.filter(line => {
+    try {
+        const entry = JSON.parse(line);
+        if (String(entry.slave) === String(slave)) {
+          removed++;
+          return false;
+        }
+        return true;
+
+      } catch {
+        return true;
+      }
+    });
+
+    await fs.writeFile(
+      logPath,
+      kept.length ? kept.join("\n") + "\n" : ""
+    );
+
+
+
+    res.json({file: `${baseTopic}.txt`, slave, removed});
+
+  } catch (err) {
+    console.error("❌ Clear failed:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 
 async function writePlcFile(baseTopic, content) {

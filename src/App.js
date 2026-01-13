@@ -110,7 +110,7 @@ function App() {
     return (
       <>
         {page === "project" && <Project setPage={setPage} user={userName} visibleProjects = {visibleProjects} setSelectedProject={setSelectedProject}/>}
-        {page === "dashboard" && <Dashboard  setPage={setPage} projectTopic={selectedProject.topic} user={userName} proje={selectedProject.name} />}
+        {page === "dashboard" && <Dashboard  setPage={setPage} projectTopic={selectedProject.topic} user={userName} projectName={selectedProject.name} />}
       </>
     );
   }
