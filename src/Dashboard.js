@@ -342,7 +342,7 @@ const Line = function Line(
 
     const extraHistory = history[extra.id] || [];
     const extraEntry = extraHistory.at(-1);
-    const extraValue = extraEntry ? extra.val : -1;
+    const extraValue = extraEntry ? extraEntry.val : -1;
 
 
     return (
@@ -351,11 +351,11 @@ const Line = function Line(
           {config.label}
         </div>  
         <div className={`h-full flex-[3] min-w-0 flex items-center justify-center `}>
-            <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
+            <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={textsize} handleWriteClick = {handleWriteClick } />
         </div>   
 
         <div className={`h-full flex-[3] min-w-0 flex items-center justify-center text-black`}>
-            <But display = {extra.unit}   result = {extraValue} addr = {extra.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
+            <But display = {extra.unit}   result = {extraValue} addr = {extra.addr} textsize={textsize}  />
         </div>       
         <div className='h-full flex-[2] flex items-center justify-center'>
           {loading && (<l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black" ></l-ring>)}
