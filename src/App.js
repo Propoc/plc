@@ -14,7 +14,7 @@ function App() {
 
   const projects = [
     {
-        name: "abc-nike-1",
+        name: "perlus-nike-1",
         projectNo: "MEA-2026-01-010",
         deviceNo: "AERO-2600038",
         ahuNo: "AHU-1",
@@ -22,7 +22,7 @@ function App() {
         topic : "tmsig-1/1"
     },
     {
-        name: "abc-nike-2",
+        name: "perlus-nike-2",
         projectNo: "MEA-2026-01-011",
         deviceNo: "AERO-2600039",
         ahuNo: "AHU-2",
@@ -30,7 +30,7 @@ function App() {
         topic : "tmsig-1/2"
     },
     {
-        name: "abc-nike-3",
+        name: "perlus-nike-3",
         projectNo: "MEA-2026-01-012",
         deviceNo: "AERO-2600040",
         ahuNo: "AHU-3",
@@ -93,9 +93,9 @@ function App() {
 
   if (auth.isAuthenticated) {
 
-    const userName = auth.user?.signInUserSession?.idToken?.payload?.name;
+    const userName = auth.user?.signInUserSession?.idToken?.payload?.["cognito:username"];
     const visibleProjects =
-    userName === "all"
+    userName === "nemli"
         ? projects
         : projects.filter(p => p.name.startsWith(userName));
 
