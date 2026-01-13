@@ -74,7 +74,12 @@ const But = function But(
     let clrf = "bg-gradient-to-r from-red-300 via-rose-400 to-red-300 ring-1 ring-black/5";
     let isbool = display === "O" || display === "K" || display === "O" || display === "A"  ;
 
-
+    const bg =
+    result === -1
+      ? clr
+      : display === "O"
+        ? result === 1 ? clrt : clrf
+        : result === 1 ? clrf : clrt;
 
 
     const handleBubble = () => {   // Bubble aç kapa eğer on offsa direk gönder
@@ -186,10 +191,10 @@ const But = function But(
         return(
           <button
             className={`
-              w-fit h-fit rounded-full cursor-default ${clr}
+              w-fit h-fit rounded-full cursor-default
               flex items-center justify-center text-black
               ${textsize === "text-3xl" ? "px-8 py-2" : "px-4 py-1"}  
-              ${result === -1 ? clr : display === "O" ?  result === 1 ? clrt : clrf   :   result === 1 ? clrf : clrt }
+              ${bg}
             `+ textsize}  >
             {final}
           </button>
