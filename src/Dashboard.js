@@ -439,8 +439,11 @@ export default function Dashboard( { setPage , projectTopic } ) {
   const writeBufferRef = useRef(null);
   const eventSourceRef = useRef(null);
 
-
-  setTopic(projectTopic);
+  useEffect(() => {
+    if (projectTopic) {
+      setTopic(projectTopic);
+    }
+  }, [projectTopic]);
 
   useEffect(() => {
 

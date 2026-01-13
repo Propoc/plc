@@ -3,15 +3,6 @@ import Dashboard from "./Dashboard";
 import Project from "./Project";
 import { useAuth } from "react-oidc-context";
 
-
-
-
-function App() {
-
-  const auth = useAuth();
-  const [page, setPage] = useState("project");
-  const [selectedProject, setSelectedProject] = useState(null);
-
   const projects = [
     {
         name: "perlus-nike-1",
@@ -55,6 +46,12 @@ function App() {
 
 
 
+function App() {
+
+  const auth = useAuth();
+  const [page, setPage] = useState("project");
+  const [selectedProject, setSelectedProject] = useState(null);
+
   const signOutRedirect = () => {
       const clientId = "132nnak5fjs7880focne3ac7ot";
       const logoutUri = "<logout uri>";
@@ -77,6 +74,25 @@ function App() {
     }
   }, [auth.isLoading, auth.isAuthenticated, auth.error]);
 
+  const visibleProjects = useMemo(() => {
+  // If not logged in, return an empty list immediately
+  if (!auth.isAuthenticated || !auth.user?.profile) return [];
+
+  const profile = auth.user.profile;
+  const userName = profile["cognito:username"] || profile["preferred_username"];
+  
+  console.log("Memo calculating projects for:", userName);
+
+  return userName === "nemli"
+    ? projects
+    : projects.filter(p => p.name.startsWith(userName));
+
+  }, [auth.isAuthenticated, auth.user, projects]);
+
+  const userName = useMemo(() => {
+    return auth.user?.profile?.["cognito:username"] || auth.user?.profile?.["preferred_username"];
+  }, [auth.user]);
+
 
   if (auth.isLoading) {
     return <div>Loading...</div>;
@@ -90,16 +106,7 @@ function App() {
     return <div>Redirecting to login…</div>;
   }
 
-
   if (auth.isAuthenticated) {
-
-    const userName = auth.user?.profile?.["cognito:username"] || auth.user?.profile?.["preferred_username"];
-    console.log(userName);
-    const visibleProjects =
-    userName === "nemli"
-        ? projects
-        : projects.filter(p => p.name.startsWith(userName));
-
     return (
       <>
         {page === "project" && <Project setPage={setPage} user={auth.user} visibleProjects = {visibleProjects} setSelectedProject={setSelectedProject}/>}
