@@ -772,8 +772,8 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
         {/* Right  Top*/}
         <div className={`w-full h-full flex-[2] flex flex-col items-center justify-evenly`}>
     
-          <Line config={vars.G6} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G6.addr)} extra ={vars.O1}/>
-          <Line config={vars.G7} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G7.addr)} extra ={vars.O2}/>
+          <Line config={vars.G6} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G6.addr)} extra ={vars.G12}/>
+          <Line config={vars.G7} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G7.addr)} extra ={vars.G13}/>
 
         </div>
 
