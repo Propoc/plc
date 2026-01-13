@@ -23,7 +23,7 @@ export default function Project( { setPage , user , visibleProjects, setSelected
                 </div>
 
                 <div className={`w-full h-full  flex-[3] flex justify-center items-center text-5xl `}>
-                    PERLUS
+                    {user};
                 </div>
 
                 <div className="w-full h-full flex-[1] flex justify-center items-center text-5xl text-center">
@@ -37,7 +37,7 @@ export default function Project( { setPage , user , visibleProjects, setSelected
             </div>
 
             {/* Language & Date */}
-            <div className={`w-full h-12 ${c2} flex items-center`}>
+            <div className={`w-full h-12 ${c2} flex items-center border-l-2 border-r-2 border-black`}>
                 <button className="w-20 h-10"> <img src="/tr.png"alt="sun" className="w-full h-full object-contain"/> </button>
                 <button className="w-20 h-10"> <img src="/en.png"alt="sun" className="w-full h-full object-contain"/> </button>
                 <button className="w-20 h-10"> <img src="/ger.png"alt="sun" className="w-full h-full object-contain"/> </button>
@@ -46,6 +46,27 @@ export default function Project( { setPage , user , visibleProjects, setSelected
                 {new Date().toLocaleDateString()}
                 </div>
             </div>
+
+            <div
+                className={`w-full h-12 ${c2} flex items-center mb-4 border-black border-2 cursor-pointer`}
+            >
+                <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl`}>
+                Proje Adı
+                </div>
+                <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}>
+                Proje No
+                </div>
+                <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}>
+                Cihaz No
+                </div>
+                <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}>
+                Ahu No
+                </div>
+                <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}>
+                Mac Adresi
+                </div>
+            </div>
+
 
             {/* Projeler*/}
             {visibleProjects.map((p, idx) => (

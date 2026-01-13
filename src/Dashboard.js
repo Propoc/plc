@@ -101,11 +101,9 @@ const But = function But(
       }
       else if (result === 0) {
         final = "Kapalı";
-        clr = "bg-red-500";
       }
       else if (result === 1) {
         final = "Açık";
-        clr = "bg-green-500";
       }
     }
     else if (display === "K")
@@ -115,11 +113,9 @@ const But = function But(
       }
       else if (result === 0) {
         final = "Temiz";
-        clr = "bg-green-500";
       }
       else if (result === 1) {
         final = "Kirli";
-        clr = "bg-red-500";
       }
     }
     else if (display === "A")
@@ -129,11 +125,9 @@ const But = function But(
       }
       else if (result === 0) {
         final = "Normal";
-        clr = "bg-green-500";
       }
       else if (result === 1) {
         final = "Alarm";
-        clr = "bg-green-500";
       }
 
     }
@@ -195,7 +189,7 @@ const But = function But(
               w-fit h-fit rounded-full cursor-default ${clr}
               flex items-center justify-center text-black
               ${textsize === "text-3xl" ? "px-8 py-2" : "px-4 py-1"}  
-              ${result === -1 ? clr : result === 1 ? clrt : clrf }
+              ${result === -1 ? clr : display === "O" ?  result === 1 ? clrt : clrf   :   result === 1 ? clrf : clrt }
             `+ textsize}  >
             {final}
           </button>
@@ -412,7 +406,7 @@ const API_BASE = process.env.REACT_APP_API_BASE ||  "http://localhost:4000";
 const historyLen = 15;
 
 
-export default function Dashboard( { setPage , projectTopic } ) {
+export default function Dashboard( { setPage , projectTopic , user , proje } ) {
 
   const initialHistory = Object.keys(vars).reduce((acc, key) => {
     acc[key] = [];
@@ -707,11 +701,11 @@ export default function Dashboard( { setPage , projectTopic } ) {
     {/* Info Tab*/}
     <div className={`w-full h-12 ${c1} flex items-center border-black border-2`}>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-black`}> Proje No </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> 123456 </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {proje} </div>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Kullanıcı </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Admin </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {user} </div>
           <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> Cihaz </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> tmsig-1/0 </div>
+          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {topic} </div>
     </div>
 
     <div className={`w-full h-12 ${c2} flex items-center justify-center text-black text-3xl border-l-2 border-r-2 border-black`}>

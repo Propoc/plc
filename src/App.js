@@ -90,7 +90,7 @@ function App() {
   }, [auth.isAuthenticated, auth.user, projects]);
 
   const userName = useMemo(() => {
-    return auth.user?.profile?.["cognito:username"] || auth.user?.profile?.["preferred_username"];
+    return auth.user?.profile?.["cognito:username"];
   }, [auth.user]);
 
 
@@ -109,8 +109,8 @@ function App() {
   if (auth.isAuthenticated) {
     return (
       <>
-        {page === "project" && <Project setPage={setPage} user={auth.user} visibleProjects = {visibleProjects} setSelectedProject={setSelectedProject}/>}
-        {page === "dashboard" && <Dashboard  setPage={setPage} projectTopic={selectedProject.topic}/>}
+        {page === "project" && <Project setPage={setPage} user={userName} visibleProjects = {visibleProjects} setSelectedProject={setSelectedProject}/>}
+        {page === "dashboard" && <Dashboard  setPage={setPage} projectTopic={selectedProject.topic} user={userName} proje={selectedProject.name} />}
       </>
     );
   }
