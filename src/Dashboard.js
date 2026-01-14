@@ -10,7 +10,8 @@ import 'ldrs/react/Pulsar.css'
 
 ring.register()
 
-
+const c1 = "bg-[#60B649]";
+const c2 = "bg-gray-300";
 
 
 // Adress farese write balonu unit "O" ise On Off
@@ -71,6 +72,7 @@ const But = function But(
     let clr = "bg-gradient-to-r from-blue-400 via-sky-500 to-blue-400 ring-1 ring-black/5";
     let clrt = "bg-gradient-to-r from-teal-300 via-teal-400 to-teal-300 ring-1 ring-black/5";
     let clrf = "bg-gradient-to-r from-red-300 via-rose-400 to-red-300 ring-1 ring-black/5";
+    let clrx = "bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-400 ring-1 ring-black/5";
     let isbool = display === "O" || display === "K" || display === "O" || display === "A"  ;
 
     const bg =
@@ -87,6 +89,7 @@ const But = function But(
 
     const handleClick = () => {  // Text gönder
       handleWriteClick(addr,parseInt(text, 10));
+      setBubble(false);
       return;
 
     };
@@ -190,7 +193,7 @@ const But = function But(
         return(
           <button
             className={`
-              w-fit h-fit rounded-full cursor-default  ${textsize} ${bg}
+              w-3/4 h-3/4 rounded-full cursor-default  ${textsize} ${bg}
               flex items-center justify-center text-black
               ${textsize === "text-3xl" ? "px-8 py-2" : textsize === "text-2xl" ? "px-2 py-1" : "px-1 py-0"}  
             `} >
@@ -205,7 +208,7 @@ const But = function But(
     if (addr !== 0) {   // Değerli Giriş 
 
       return(
-        <div className={"relative h-fit w-fit"}>
+        <div className={"relative h-full w-full flex justify-center items-center"}>
           <div
             className={`
               absolute bottom-full left-1/2 -translate-x-1/2
@@ -252,10 +255,9 @@ const But = function But(
             }}
             onClick={handleBubble}
             className={`
-              w-fit h-fit rounded-full cursor-pointer  ${textsize}
+              w-5/6 h-3/4 rounded-full cursor-pointer  ${textsize}
               flex items-center justify-center text-black
               ${loading ? "bg-gray-500 cursor-wait" : `${clr} hover:bg-none hover:bg-orange-700`}
-              ${textsize === "text-3xl" ? "px-8 py-2" : textsize === "text-2xl" ? "px-2 py-1" : "px-1 py-0"}  
             `}
           >
             {final}
@@ -269,7 +271,7 @@ const But = function But(
      return(
         <button
           className={`
-            w-fit h-fit rounded-full cursor-default ${clr} ${textsize}
+            w-5/6 h-3/4 rounded-full cursor-default ${clrx} ${textsize}
             flex items-center justify-center text-black bg-emerald-700
             ${textsize === "text-3xl" ? "px-8 py-2" : textsize === "text-2xl" ? "px-2 py-1" : "px-1 py-0"}  
           `} >
@@ -291,148 +293,136 @@ const Line = function Line(
   const latestEntry = sensorHistory.at(-1);
   const latestValue = latestEntry ? latestEntry.val : -1;
 
-  if (type == 5)
-  {
-
-    const bg =
-      latestValue === -1
-        ? "gray"
-        : config.unit === "O"
-          ? latestValue === 1 ? "green" : "red"
-          : latestValue === 1 ? "red" : "green";
+  switch (type) {
 
 
-    <div className={`w-full h-10 flex items-center justify-center `}>
-
-      <div className={`h-full flex-[1] min-w-0 flex items-center justify-center`}>
-
-        <Pulsar size="40" speed="3" color={bg}/>
-
-      </div>  
-
-      <div className={`h-full flex-[5] flex items-center justify-center text-black ${textsize}` }>
-        {config.label}
-      </div>
-
-      <div className={`h-full flex-[3] min-w-0 flex items-center justify-center`}>
-        <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick} loading={loading}/>
-      </div>  
-
-      <div className="h-full flex-[1] flex items-center justify-center">
-        {loading && (<l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black" ></l-ring>)}
-      </div>
-              
-    </div>
-  }
+      case 6: { //Set
+        return (
+          <div className="w-full h-16  flex items-center justify-cente">
+            <div className={`h-full flex-[6] min-w-0 flex items-center justify-center text-black ${textsize}`}>
+              {config.label}
+            </div>
+            <div className="h-full flex-[3] min-w-0 max-w-40 flex items-center justify-center ">
+              <But display={config.unit} result={latestValue} addr={config.addr} textsize={textsize} handleWriteClick={handleWriteClick} loading={loading} />
+            </div>
+            <div className="h-full flex-[1] min-w-0 flex items-center justify-center">
+              {loading && <l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black"></l-ring>}
+            </div>
+          </div>
+        );
+      }
 
 
-  else if (type === 4) {
-    return (
+      case 5: {     // Analar
+        const bg =
+          latestValue === -1
+            ? "gray"
+            : config.unit === "O"
+            ? latestValue === 1 ? "green" : "red"
+            : latestValue === 1 ? "red" : "green";
 
-      <motion.button
-        onClick={() => handleWriteClick(9008, 1)}
-        disabled={loading}
-        className={`
-          w-fit h-fit rounded-full text-3xl
-          flex items-center justify-center text-black px-8 py-8
-          cursor-pointer select-none
-          ${loading ? "bg-amber-400 cursor-wait" : "bg-rose-400  hover:bg-amber-500"}
-        `}
-        animate={
-          loading
-            ? { scale: [1, 1.08, 1] }
-            : { scale: 1 }
-        }
-        transition={
-          loading
-            ? { duration: 1.4, ease: "easeInOut", repeat: Infinity }
-            : { duration: 0.15 }
-        }
-        whileHover={!loading ? { scale: 1.25 } : {}}
-        whileTap={!loading ? { scale: 0.9 } : {}}
-      >
-        ALARM RESET
-      </motion.button>
-    )
-  }
+        return (
+          <div className={`w-full h-16 flex items-center justify-center `}>
+            <div className={`h-full flex-[1] min-w-0 flex items-center justify-center `}>
+              <Pulsar size="40" speed="3" color={bg} />
+            </div>
+            <div className={`h-full flex-[4] min-w-0 flex items-center justify-center ${textsize}`}>
+              {config.label}
+            </div>
+            <div className={`h-full flex-[2] min-w-0 flex items-center justify-center`}>
+              <But display={config.unit} result={latestValue} addr={config.addr} textsize={textsize} handleWriteClick={handleWriteClick} loading={loading} />
+            </div>
+            <div className={`h-full flex-[1] min-w-0 flex items-center justify-center `}>
+              {loading && <l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black"></l-ring>}
+            </div>
+          </div>
+        );
+      }
 
+      case 4: //Reset
+        return (
+          <motion.button
+            onClick={() => handleWriteClick(9008, 1)}
+            disabled={loading}
+            className={`w-40 h-28 rounded-full text-3xl flex items-center justify-center text-black px-6 py-6 cursor-pointer select-none ${
+              loading ? "bg-amber-400 cursor-wait" : "bg-rose-400 hover:bg-amber-500"
+            }`}
+            animate={loading ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+            transition={loading ? { duration: 1.4, ease: "easeInOut", repeat: Infinity } : { duration: 0.15 }}
+            whileHover={!loading ? { scale: 1.25 } : {}}
+            whileTap={!loading ? { scale: 0.9 } : {}}
+          >
+            ALARM RESET
+          </motion.button>
+        );
 
-  else if (type === 3) {
-    return (
-      <div className={`w-full h-16  flex items-center justify-center`}>
-        <div className={`h-full flex-[6] flex items-center justify-center text-black ${textsize} `}>
-          {config.label}
-        </div>      
-        <div className={`h-full  flex-[2] flex items-center justify-center text-black ${textsize} `}>
-          <But display = {config.unit}   result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick } />
-        </div>      
-      </div>
+      case 3:  //Durumlar
+        return (
+          <div className="w-full h-16 flex items-center justify-center">
+            <div className={`h-full flex-[6] min-w-0 flex items-center justify-center text-black ${textsize}`}>
+              {config.label}  
+            </div>
+            <div className={`h-full flex-[2] min-w-0 max-w-52 flex items-center justify-center text-black ${textsize}`}>
+              <But display={config.unit} result={latestValue} addr={config.addr} textsize={textsize} handleWriteClick={handleWriteClick} />
+            </div>
+          </div>
+        );
 
-    );
-  }
+      case 2: {  // İkili
+        const extraHistory = history[extra.id] || [];
+        const extraValue = extraHistory.at(-1)?.val ?? -1; // Using the .val property as discussed earlier
 
-  else if (type === 2) {
+        return (
+          <div className="w-full h-16 flex items-center justify-center ">
+            <div className={`h-full flex-[10] min-w-0 flex items-center justify-center text-black ${textsize}`}>
+              {config.label}
+            </div>
+            <div className="h-full flex-[3] min-w-0 flex items-center justify-center">
+              <But display={config.unit} result={latestValue} addr={config.addr} textsize="text-xl" handleWriteClick={handleWriteClick} />
+            </div>
+            <div className="h-full flex-[3] min-w-0 flex items-center justify-center text-black">
+              <But display={extra.unit} result={extraValue} addr={extra.addr} textsize="text-xl" />
+            </div>
+            <div className="h-full flex-[2] flex items-center justify-center">
+              {loading && <l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black"></l-ring>}
+            </div>
+          </div>
+        );
+      }
 
-    const extraHistory = history[extra.id] || [];
-    const extraEntry = extraHistory.at(-1);
-    const extraValue = extraEntry ? extraEntry.val : -1;
+      case 1: { //Sensörler
+        const final = (latestValue / 10).toFixed(1).replace(".", ",");
+        return (
+          <div className="w-full h-12 flex items-center justify-center ">
+            <div className={`h-full flex-[6] flex items-center justify-center text-black ${textsize}`}>
+              {config.label}
+            </div>
+            <div className={`h-full flex-[1] flex items-center justify-end pr-4 text-black ${textsize}`}>
+              {final}
+            </div>
+            <div className={`h-full flex-[1] flex items-center justify-start text-black ${textsize}`}>
+              {config.unit}
+            </div>
+          </div>
+        );
+      }
 
+      default: //Sağ Alt
+        return (
+          <div className="w-full h-12 flex items-center justify-cente">
+            <div className={`h-full flex-[6] min-w-0 flex items-center justify-center text-black ${textsize}`}>
+              {config.label}
+            </div>
+            <div className="h-full flex-[3] min-w-0 max-w-32 flex items-center justify-center">
+              <But display={config.unit} result={latestValue} addr={config.addr} textsize={textsize} handleWriteClick={handleWriteClick} loading={loading} />
+            </div>
+            <div className="h-full flex-[1] min-w-0 flex items-center justify-center">
+              {loading && <l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black"></l-ring>}
+            </div>
+          </div>
+        );
+    }
 
-    return (
-      <div className={`w-full  h-8  flex items-center justify-center `}>
-        <div className={`h-full slate-100 flex-[10] flex items-center justify-center text-black ${textsize}`}>
-          {config.label}
-        </div>  
-        <div className={`h-full flex-[3] min-w-0 flex items-center justify-center `}>
-            <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={"text-xl"} handleWriteClick = {handleWriteClick } />
-        </div>   
-
-        <div className={`h-full flex-[3] min-w-0 flex items-center justify-center text-black`}>
-            <But display = {extra.unit}   result = {extraValue} addr = {extra.addr} textsize={"text-xl"}  />
-        </div>       
-        <div className='h-full flex-[2] flex items-center justify-center'>
-          {loading && (<l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black" ></l-ring>)}
-        </div>
-      </div>
-    );
-  }
-
-  else if (type === 1) {
-
-    let final = (latestValue / 10).toFixed(1).replace('.', ',');
-
-    return (
-      <div className={`w-full h-12 flex items-center justify-center`}>
-        <div className={`h-full flex-[6] flex items-center justify-center text-black ${textsize}`}>
-          {config.label}
-        </div>    
-        <div className={`h-full flex-[1] flex items-center justify-end pr-8 text-black ${textsize}`}>
-          {final}
-        </div>      
-        <div className={`h-full flex-[1] flex items-center justify-start text-black ${textsize}`}>
-          {config.unit}
-        </div>  
-      </div>
-
-    );
-  }
-
-return(
-  <div className={`w-full h-10 flex items-center justify-center `}>
-    <div className={`h-full flex-[6] flex items-center justify-center text-black ${textsize}` }>
-      {config.label}
-    </div>
-    <div className={`h-full flex-[3] min-w-0 flex items-center justify-center`}>
-      <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick} loading={loading}/>
-    </div>  
-
-    <div className="h-full flex-[1] flex items-center justify-center">
-      {loading && (<l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black" ></l-ring>)}
-    </div>
-            
-  </div>
-  );
- 
 };
 
 
@@ -466,7 +456,8 @@ export default function Dashboard( { setPage , project , user ,} ) {
 
   const [dataPulse, setDataPulse] = useState(false);
   const [writeStatus, setWriteStatus] = useState(0); // 0 Ready 1 Busy (Addr) Written but awaiting confirmation
-  
+  const [weatherConfig, setWeatherConfig] = useState(null);
+
   const writeBufferRef = useRef(null);
   const eventSourceRef = useRef(null);
 
@@ -638,8 +629,6 @@ export default function Dashboard( { setPage , project , user ,} ) {
     });
   }
 
-  const c1 = "bg-[#60B649]";
-  const c2 = "bg-gray-300";
 
   const statusColorMap = {
     "Connection not started": "#9ca3af", 
@@ -664,31 +653,42 @@ export default function Dashboard( { setPage , project , user ,} ) {
     buffer.addr === addr &&
     writeStatus !== 0;
 
-    
-  const weatherConfig = history["D6"].at(-1) === 1
-  ? {
-      src: "/sun.png",
-      alt: "sun",
-      shadow: "drop-shadow-[0_0_12px_rgba(255,180,0,0.8)]",
-    }
-  : history["D7"].at(-1) === 1
-  ? {
-      src: "/wind.png",
-      alt: "wind",
-      shadow: "drop-shadow-[0_0_12px_rgba(150,200,255,0.8)]",
-    }
-  : history["D8"].at(-1) === 1
-  ? {
-      src: "/snow.png",
-      alt: "snow",
-      shadow: "drop-shadow-[0_0_12px_rgba(220,240,255,0.9)]",
-    }
-  : {
-      src: "/send.png",
-      alt: "sun",
-      shadow: "drop-shadow-[0_0_12px_rgba(255,180,0,0.8)]",
-    };
 
+  useEffect(() => {
+    const d6Val = history["D6"]?.at(-1)?.val;
+    const d7Val = history["D7"]?.at(-1)?.val;
+    const d8Val = history["D8"]?.at(-1)?.val;
+
+    let newConfig;
+
+    if (d6Val === 1) {
+      newConfig = {
+        src: "/sun.png",
+        alt: "sun",
+        shadow: "drop-shadow-[0_0_12px_rgba(255,180,0,0.8)]",
+      };
+    } else if (d7Val === 1) {
+      newConfig = {
+        src: "/wind.png",
+        alt: "wind",
+        shadow: "drop-shadow-[0_0_12px_rgba(150,200,255,0.8)]",
+      };
+    } else if (d8Val === 1) {
+      newConfig = {
+        src: "/snow.png",
+        alt: "snow",
+        shadow: "drop-shadow-[0_0_12px_rgba(220,240,255,0.9)]",
+      };
+    } else {
+      newConfig = {
+        src: "/blank.png",
+        alt: "none",
+        shadow: "",
+      };
+    }
+
+    setWeatherConfig(newConfig);
+  }, [history]);
 
   return (
     <div className={`w-full h-screen ${c2}`}>
@@ -819,7 +819,7 @@ export default function Dashboard( { setPage , project , user ,} ) {
         
         <div  className={`w-full h-full flex-[1] border-black border-l-2 border-r-2  flex flex-col items-center justify-center`}>
 
-          <Line config={vars.G5} history={history} handleWriteClick={handleWriteClick} loading={isLoading(vars.G5.addr)}/>
+          <Line config={vars.G5} history={history} type={6} handleWriteClick={handleWriteClick} loading={isLoading(vars.G5.addr)}/>
 
         </div>
 
@@ -836,15 +836,11 @@ export default function Dashboard( { setPage , project , user ,} ) {
       <div className={`w-full h-full ${c2} bg-blue-600 flex-[5] flex flex-col items-center justify-evenly`}>
 
         {/* Right  Top*/}
-        <div className={`w-full h-full flex-[2] flex flex-col items-center justify-evenly`}>
+        <div className={`w-full h-full flex flex-col items-center justify-evenly`}>
     
           <Line config={vars.G6} history={history} type={2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G6.addr)} extra ={vars.G12}/>
           <Line config={vars.G7} history={history} type={2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G7.addr)} extra ={vars.G13}/>
 
-        </div>
-
-        {/* Right  Bottom*/}
-        <div className={`w-full h-full flex-[4] flex flex-col items-center justify-evenly text-black`}>
           
           <Line config={vars.G8} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G8.addr)}/>
           <Line config={vars.G9} history={history} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G9.addr)}/>
@@ -862,15 +858,14 @@ export default function Dashboard( { setPage , project , user ,} ) {
              
       <div className={`w-24 h-24 flex flex-[1] items-center justify-center `}>
 
-      {weatherConfig && (
-        <img
-          src={weatherConfig.src}
-          alt={weatherConfig.alt}
-          className={`w-full h-full object-contain ${weatherConfig.shadow}`}
-        />
-      )}
+        {weatherConfig && (
+          <img
+            src={weatherConfig.src}
+            alt={weatherConfig.alt}
+            className={`w-full h-full object-contain ${weatherConfig.shadow || ""}`}
+          />
+        )}
 
-        
       </div>
 
     </div>

@@ -54,8 +54,8 @@ function Test() {
   
     return (
       <>
-        {page === "project" && <Project setPage={setPage} user={userName} visibleProjects = {projects} setSelectedProject={setSelectedProject}/>}
-        {page === "dashboard" && <Dashboard  setPage={setPage} projectTopic={selectedProject.topic} user={userName} projectName={selectedProject.name} />}
+        {page === "project" && <Project setPage={setPage} user={userName} visibleProjects = {projects} setSelectedProject={setSelectedProject} />}
+        {page === "dashboard" && <Dashboard  setPage={setPage} project={selectedProject} user={userName}/>}
       </>
     );
 
