@@ -54,8 +54,12 @@ function App() {
   const signOutRedirect = () => {
       const clientId = "132nnak5fjs7880focne3ac7ot";
       const logoutUri = "https://www.akscon.com";
-      const cognitoDomain = "https://eu-central-1igfgickad.auth.eu-central-1.amazoncognito.com";
-      window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+      const cognitoDomain = "eu-central-1igfgickad.auth.eu-central-1.amazoncognito.com";
+      localStorage.clear(); 
+      sessionStorage.clear();
+      const url = `https://${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+      
+      window.location.href = url;
   };
 
 

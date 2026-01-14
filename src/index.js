@@ -21,7 +21,7 @@ const cognitoAuthConfig = {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 
-/*
+
 root.render(
   <React.StrictMode>
     <AuthProvider {...cognitoAuthConfig}>
@@ -29,7 +29,8 @@ root.render(
     </AuthProvider>
   </React.StrictMode>
 );
-*/
+
+/*
 
 root.render(
   <React.StrictMode>
@@ -37,5 +38,6 @@ root.render(
   </React.StrictMode>
 );
 
+*/
 
 reportWebVitals();

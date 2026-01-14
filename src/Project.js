@@ -26,7 +26,7 @@ export default function Project( { setPage , user , visibleProjects, setSelected
                     CİHAZ LİSTESİ
                 </div>
 
-                <div className="w-full h-full flex-[1] flex justify-center items-center text-5xl text-center">
+                <div className="w-full h-full flex-[1] flex justify-center items-center text-5xl text-center cursor-pointer">
                    <img
                         src="/enter.png"
                         alt="exit"

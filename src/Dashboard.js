@@ -373,14 +373,14 @@ const Line = function Line(
         const extraValue = extraHistory.at(-1)?.val ?? -1; // Using the .val property as discussed earlier
 
         return (
-          <div className="w-full h-16 flex items-center justify-center ">
+          <div className="w-full h-14 flex items-center justify-center ">
             <div className={`h-full flex-[10] min-w-0 flex items-center justify-center text-black ${textsize}`}>
               {config.label}
             </div>
-            <div className="h-full flex-[3] min-w-0 flex items-center justify-center">
+            <div className="h-full flex-[3] min-w-0 max-w-24 flex items-center justify-center">
               <But display={config.unit} result={latestValue} addr={config.addr} textsize="text-xl" handleWriteClick={handleWriteClick} />
             </div>
-            <div className="h-full flex-[3] min-w-0 flex items-center justify-center text-black">
+            <div className="h-full flex-[3] min-w-0 max-w-24 flex items-center justify-center text-black">
               <But display={extra.unit} result={extraValue} addr={extra.addr} textsize="text-xl" />
             </div>
             <div className="h-full flex-[2] flex items-center justify-center">
@@ -409,11 +409,11 @@ const Line = function Line(
 
       default: //Sağ Alt
         return (
-          <div className="w-full h-12 flex items-center justify-cente">
+          <div className="w-full h-14 flex items-center justify-cente">
             <div className={`h-full flex-[6] min-w-0 flex items-center justify-center text-black ${textsize}`}>
               {config.label}
             </div>
-            <div className="h-full flex-[3] min-w-0 max-w-32 flex items-center justify-center">
+            <div className="h-full flex-[3] min-w-0 max-w-36 flex items-center justify-center">
               <But display={config.unit} result={latestValue} addr={config.addr} textsize={textsize} handleWriteClick={handleWriteClick} loading={loading} />
             </div>
             <div className="h-full flex-[1] min-w-0 flex items-center justify-center">
@@ -680,11 +680,6 @@ export default function Dashboard( { setPage , project , user ,} ) {
         shadow: "drop-shadow-[0_0_12px_rgba(220,240,255,0.9)]",
       };
     } else {
-      newConfig = {
-        src: "/blank.png",
-        alt: "none",
-        shadow: "",
-      };
     }
 
     setWeatherConfig(newConfig);
