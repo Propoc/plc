@@ -328,7 +328,7 @@ const Line = function Line(
         return (
           <div className={`w-full h-16 flex items-center justify-center `}>
             <div className={`h-full flex-[1] min-w-0 flex items-center justify-center `}>
-                {bg === "none" && (
+                {bg !== "none" && (
                   <Pulsar size="40" speed="3" color={bg} />
                 )}
             </div>
