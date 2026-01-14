@@ -317,9 +317,12 @@ const Line = function Line(
 
       let bg;
       if (latestValue === 1) {
-        if (config.id === "G2") bg = "green";
+        if (config.id === "G2") bg = "[#60B649]";
         else if (config.id === "G3") bg = "yellow";
         else if (config.id === "G4") bg = "red";
+        else {
+          bg = "none";
+        }
       } 
       else {
         bg = "none"
