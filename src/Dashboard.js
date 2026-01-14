@@ -297,9 +297,9 @@ const Line = function Line(
     const bg =
       latestValue === -1
         ? "gray"
-        : display === "O"
-          ? result === 1 ? "green" : "red"
-          : result === 1 ? "red" : "green";
+        : config.unit === "O"
+          ? latestValue === 1 ? "green" : "red"
+          : latestValue === 1 ? "red" : "green";
 
 
     <div className={`w-full h-10 flex items-center justify-center `}>
