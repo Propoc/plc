@@ -16,7 +16,7 @@ export default function Project( { setPage , user , visibleProjects, setSelected
 
                 <div className={`w-full h-full  flex-[1] flex justify-center items-center `}>
                    <img
-                        src="/sch.png"
+                        src="/per.png"
                         alt="sch"
                         className="w-full h-full object-contain "
                     />

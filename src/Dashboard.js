@@ -669,13 +669,13 @@ export default function Dashboard( { setPage , project , user ,} ) {
       };
     } else if (d7Val === 1) {
       newConfig = {
-        src: "/wind.png",
+        src: "/snow.png",
         alt: "wind",
         shadow: "drop-shadow-[0_0_12px_rgba(150,200,255,0.8)]",
       };
     } else if (d8Val === 1) {
       newConfig = {
-        src: "/snow.png",
+        src: "/wind.png",
         alt: "snow",
         shadow: "drop-shadow-[0_0_12px_rgba(220,240,255,0.9)]",
       };

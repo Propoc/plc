@@ -102,7 +102,7 @@ function App() {
   }
 
   if (auth.error) {
-    return <div>Encountering error... {auth.error.message}</div>;
+    return <div> --- SİTENİN BAŞINA WWW. KOYARAK GİRİŞ YAPIN --- Encountering error... {auth.error.message}</div>;
   }
 
   if (!auth.isAuthenticated) {
