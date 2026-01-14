@@ -255,7 +255,7 @@ const But = function But(
             }}
             onClick={handleBubble}
             className={`
-              w-5/6 h-3/4 rounded-full cursor-pointer  ${textsize}
+              w-full h-3/4 rounded-full cursor-pointer  ${textsize}
               flex items-center justify-center text-black
               ${loading ? "bg-gray-500 cursor-wait" : `${clr} hover:bg-none hover:bg-orange-700`}
             `}
@@ -271,7 +271,7 @@ const But = function But(
      return(
         <button
           className={`
-            w-5/6 h-3/4 rounded-full cursor-default ${clrx} ${textsize}
+            w-full h-3/4 rounded-full cursor-default ${clrx} ${textsize}
             flex items-center justify-center text-black bg-emerald-700
             ${textsize === "text-3xl" ? "px-8 py-2" : textsize === "text-2xl" ? "px-2 py-1" : "px-1 py-0"}  
           `} >
@@ -313,18 +313,24 @@ const Line = function Line(
       }
 
 
-      case 5: {     // Analar
-        const bg =
-          latestValue === -1
-            ? "gray"
-            : config.unit === "O"
-            ? latestValue === 1 ? "green" : "red"
-            : latestValue === 1 ? "red" : "green";
+      case 5: {   // Analar
+
+      let bg;
+      if (latestValue === 1) {
+        if (config.id === "G2") bg = "green";
+        else if (config.id === "G3") bg = "yellow";
+        else if (config.id === "G4") bg = "red";
+      } 
+      else {
+        bg = "none"
+      }
 
         return (
           <div className={`w-full h-16 flex items-center justify-center `}>
             <div className={`h-full flex-[1] min-w-0 flex items-center justify-center `}>
-              <Pulsar size="40" speed="3" color={bg} />
+                {bg === "none" && (
+                  <Pulsar size="40" speed="3" color={bg} />
+                )}
             </div>
             <div className={`h-full flex-[4] min-w-0 flex items-center justify-center ${textsize}`}>
               {config.label}
@@ -433,7 +439,7 @@ const API_BASE = process.env.REACT_APP_API_BASE ||  "http://localhost:4000";
 const historyLen = 15;
 
 
-export default function Dashboard( { setPage , project , user ,} ) {
+export default function Dashboard( { setPage , project , user } ) {
 
   const initialHistory = Object.keys(vars).reduce((acc, key) => {
     acc[key] = [];
@@ -739,6 +745,10 @@ export default function Dashboard( { setPage , project , user ,} ) {
         <button className="w-20 h-10"> <img src="/tr.png"alt="sun" className="w-full h-full object-contain"/> </button>
         <button className="w-20 h-10"> <img src="/en.png"alt="sun" className="w-full h-full object-contain"/> </button>
         <button className="w-20 h-10"> <img src="/ger.png"alt="sun" className="w-full h-full object-contain"/> </button>
+
+        <div className={`w-2/5   h-full ml-auto  flex items-center justify-center text-black text-3xl`}>
+          {user}
+        </div>
 
         <div className={`w-1/5   h-full ml-auto  flex items-center justify-center text-black text-3xl`}>
           {new Date().toLocaleDateString()}
