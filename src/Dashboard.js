@@ -36,7 +36,7 @@ const vars = {
 
   D1: { id: "D1", label: "Vantilatör EC Fan Durumu", unit: "O" },
   D2: { id: "D2", label: "Aspiratör EC Fan Durumu", unit: "O" },
-  D3: { id: "D3", label: "Taze Hava ve Egzoz Hava Damper Durumu", unit: "O" },
+  D3: { id: "D3", label: "Taze ve Egzoz Hava Damper Durumu", unit: "O" },
   D4: { id: "D4", label: "Bypass Damper Durumu", unit: "O" },
   D5: { id: "D5", label: "Mutfak Gaz Selenoid Valve Durumu", unit: "O",},
 
@@ -47,11 +47,11 @@ const vars = {
 
 
 
-  A1: { id: "A1", label: "Taze Hava Filtresi Kirli", unit: "A" },
-  A2: { id: "A2", label: "Dönüş Havası Kirli ", unit: "A" },
+  A1: { id: "A1", label: "Taze Hava Filtre Kirli", unit: "A" },
+  A2: { id: "A2", label: "Dönüş Hava Filtre Kirli ", unit: "A" },
   A3: { id: "A3", label: "Vantilatör EC Fan Arıza", unit: "A" },
   A4: { id: "A4", label: "Aspiratör EC Fan Arıza", unit: "A" },
-  A5: { id: "A5", label: "Acil Durum Arıza", unit: "A",},
+  A5: { id: "A5", label: "Acil Stop Arıza", unit: "A",},
   A6: { id: "A6", label: "VRF Alarm", unit: "A" },
   A7: { id: "A7", label: "Yangın Alarm", unit: "A" },
 
@@ -190,11 +190,10 @@ const But = function But(
         return(
           <button
             className={`
-              w-fit h-fit rounded-full cursor-default
+              w-fit h-fit rounded-full cursor-default  ${textsize} ${bg}
               flex items-center justify-center text-black
-              ${textsize === "text-3xl" ? "px-5 py-2" : "px-4 py-1"}  
-              ${bg}
-            `+ textsize}  >
+              ${textsize === "text-3xl" ? "px-8 py-2" : textsize === "text-2xl" ? "px-2 py-1" : "px-1 py-0"}  
+            `} >
             {final}
           </button>
         ) 
@@ -253,11 +252,10 @@ const But = function But(
             }}
             onClick={handleBubble}
             className={`
-              w-fit h-fit rounded-full cursor-pointer
+              w-fit h-fit rounded-full cursor-pointer  ${textsize}
               flex items-center justify-center text-black
               ${loading ? "bg-gray-500 cursor-wait" : `${clr} hover:bg-none hover:bg-orange-700`}
-              ${textsize === "text-3xl" ? "px-4 py-2" : "px-2 py-1"}
-              ${textsize}
+              ${textsize === "text-3xl" ? "px-8 py-2" : textsize === "text-2xl" ? "px-2 py-1" : "px-1 py-0"}  
             `}
           >
             {final}
@@ -271,10 +269,10 @@ const But = function But(
      return(
         <button
           className={`
-            w-fit h-fit rounded-full cursor-default ${clr}
+            w-fit h-fit rounded-full cursor-default ${clr} ${textsize}
             flex items-center justify-center text-black bg-emerald-700
-            ${textsize === "text-3xl" ? "px-8 py-2" : "px-2 py-1"}  
-          `+ textsize}  >
+            ${textsize === "text-3xl" ? "px-8 py-2" : textsize === "text-2xl" ? "px-2 py-1" : "px-1 py-0"}  
+          `} >
           {final}
         </button>
         ) 
@@ -293,7 +291,42 @@ const Line = function Line(
   const latestEntry = sensorHistory.at(-1);
   const latestValue = latestEntry ? latestEntry.val : -1;
 
-   if (type === 4) {
+  if (type == 5)
+  {
+
+    const bg =
+      latestValue === -1
+        ? "gray"
+        : display === "O"
+          ? result === 1 ? "green" : "red"
+          : result === 1 ? "red" : "green";
+
+
+    <div className={`w-full h-10 flex items-center justify-center `}>
+
+      <div className={`h-full flex-[1] min-w-0 flex items-center justify-center`}>
+
+        <Pulsar size="40" speed="3" color={bg}/>
+
+      </div>  
+
+      <div className={`h-full flex-[5] flex items-center justify-center text-black ${textsize}` }>
+        {config.label}
+      </div>
+
+      <div className={`h-full flex-[3] min-w-0 flex items-center justify-center`}>
+        <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={textsize}  handleWriteClick = {handleWriteClick} loading={loading}/>
+      </div>  
+
+      <div className="h-full flex-[1] flex items-center justify-center">
+        {loading && (<l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black" ></l-ring>)}
+      </div>
+              
+    </div>
+  }
+
+
+  else if (type === 4) {
     return (
 
       <motion.button
@@ -324,7 +357,7 @@ const Line = function Line(
   }
 
 
-    if (type === 3) {
+  else if (type === 3) {
     return (
       <div className={`w-full h-16  flex items-center justify-center`}>
         <div className={`h-full flex-[6] flex items-center justify-center text-black ${textsize} `}>
@@ -338,7 +371,7 @@ const Line = function Line(
     );
   }
 
-  if (type === 2) {
+  else if (type === 2) {
 
     const extraHistory = history[extra.id] || [];
     const extraEntry = extraHistory.at(-1);
@@ -351,11 +384,11 @@ const Line = function Line(
           {config.label}
         </div>  
         <div className={`h-full flex-[3] min-w-0 flex items-center justify-center `}>
-            <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={textsize} handleWriteClick = {handleWriteClick } />
+            <But display = {config.unit}  result = {latestValue} addr = {config.addr} textsize={"text-xl"} handleWriteClick = {handleWriteClick } />
         </div>   
 
         <div className={`h-full flex-[3] min-w-0 flex items-center justify-center text-black`}>
-            <But display = {extra.unit}   result = {extraValue} addr = {extra.addr} textsize={textsize}  />
+            <But display = {extra.unit}   result = {extraValue} addr = {extra.addr} textsize={"text-xl"}  />
         </div>       
         <div className='h-full flex-[2] flex items-center justify-center'>
           {loading && (<l-ring size="40" stroke="5" bg-opacity="0" speed="2" color="black" ></l-ring>)}
@@ -364,7 +397,7 @@ const Line = function Line(
     );
   }
 
-  if (type === 1) {
+  else if (type === 1) {
 
     let final = (latestValue / 10).toFixed(1).replace('.', ',');
 
@@ -410,7 +443,7 @@ const API_BASE = process.env.REACT_APP_API_BASE ||  "http://localhost:4000";
 const historyLen = 15;
 
 
-export default function Dashboard( { setPage , projectTopic , user , projectName } ) {
+export default function Dashboard( { setPage , project , user ,} ) {
 
   const initialHistory = Object.keys(vars).reduce((acc, key) => {
     acc[key] = [];
@@ -438,10 +471,10 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
   const eventSourceRef = useRef(null);
 
   useEffect(() => {
-    if (projectTopic) {
-      setTopic(projectTopic);
+    if (project.topic) {
+      setTopic(project.topic);
     }
-  }, [projectTopic]);
+  }, [project.topic]);
 
   useEffect(() => {
 
@@ -631,26 +664,27 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
     buffer.addr === addr &&
     writeStatus !== 0;
 
-  const weatherConfig = history?.D6 === -1
+    
+  const weatherConfig = history["D6"].at(-1) === 1
   ? {
       src: "/sun.png",
       alt: "sun",
       shadow: "drop-shadow-[0_0_12px_rgba(255,180,0,0.8)]",
     }
-  : history?.D7 === -1
+  : history["D7"].at(-1) === 1
   ? {
       src: "/wind.png",
       alt: "wind",
       shadow: "drop-shadow-[0_0_12px_rgba(150,200,255,0.8)]",
     }
-  : history?.D8 === -1
+  : history["D8"].at(-1) === 1
   ? {
       src: "/snow.png",
       alt: "snow",
       shadow: "drop-shadow-[0_0_12px_rgba(220,240,255,0.9)]",
     }
   : {
-      src: "/sun.png",
+      src: "/send.png",
       alt: "sun",
       shadow: "drop-shadow-[0_0_12px_rgba(255,180,0,0.8)]",
     };
@@ -673,7 +707,7 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
       </div>
 
       <div className="h-full flex-[3] flex justify-center items-center text-4xl text-center">
-        {projectName}
+        {project.name.toUpperCase()}
       </div>  
 
       <div className="h-full flex-[1] flex justify-center items-center">
@@ -692,12 +726,11 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
         <div className={`h-full flex flex-[1] justify-center items-center cursor-pointer`}>
           <img
             src="/enter.png"
-            alt="sun"
+            alt="exit"
             className="w-full h-full object-contain"
             onClick={() => setPage("project")}
           />
         </div>
-
 
       </div>
 
@@ -707,6 +740,7 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
 
     {/* Language & Date */}
     <div className={`w-full h-12 ${c2} flex items-center border-l-2 border-r-2 border-black`}>
+
         <button className="w-20 h-10"> <img src="/tr.png"alt="sun" className="w-full h-full object-contain"/> </button>
         <button className="w-20 h-10"> <img src="/en.png"alt="sun" className="w-full h-full object-contain"/> </button>
         <button className="w-20 h-10"> <img src="/ger.png"alt="sun" className="w-full h-full object-contain"/> </button>
@@ -717,13 +751,45 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
     </div>
 
     {/* Info Tab*/}
-    <div className={`w-full h-12 ${c1} flex items-center border-black border-2`}>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-amber-800 text-3xl border-black`}> Proje No </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {projectName} </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-amber-800 text-3xl border-l-4 border-black`}> Kullanıcı </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {user} </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-amber-800 text-3xl border-l-4  border-black`}> Cihaz </div>
-          <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}> {topic} </div>
+
+    <div
+        className={`w-full h-12 ${c1} flex items-center border-black border-2 text-black text-3xl`}
+    >
+        <div className={`h-full flex-[1] flex items-center justify-center `}>
+        Proje Adı
+        </div>
+        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        Proje No
+        </div>
+        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        Cihaz No
+        </div>
+        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        Ahu No
+        </div>
+        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        Cihaz Adı
+        </div>
+    </div>
+
+    <div
+        className={`w-full h-12 ${c1} flex items-center border-black border-l-2 border-r-2 border-b-2 text-black text-3xl`}
+    >
+        <div className={`h-full flex-[1] flex items-center justify-center `}>
+        {project.name}
+        </div>
+        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        {project.projectNo}
+        </div>
+        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        {project.deviceNo}
+        </div>
+        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        {project.ahuNo}
+        </div>
+        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+         {project.topic}
+        </div>
     </div>
 
     <div className={`w-full h-8 ${c2} flex items-center justify-center text-black text-3xl border-l-2 border-r-2 border-black`}>
@@ -732,7 +798,7 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
 
     {/* Kullanıcı set tab */}
     <div className={`w-full h-14 ${c1} flex items-center justify-center text-black text-3xl border-2 border-black`}> 
-      Kullanıcı Set Bilgileri 
+      KULLANICI SET BİLGİLERİ 
     </div>
 
     {/* Kullanıcı set */}
@@ -741,10 +807,10 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
       {/* Left */}
       <div className={`w-full h-full ${c2} flex-[5] flex flex-col items-center justify-evenly text-black text-3xl `}>
         
-        <Line config={vars.G1} history={history} handleWriteClick={handleWriteClick} loading={isLoading(vars.G1.addr)}/>
-        <Line config={vars.G2} history={history} />
-        <Line config={vars.G3} history={history} />
-        <Line config={vars.G4} history={history} />
+        <Line config={vars.G1} history={history} textsize = 'text-2xl' type={5} handleWriteClick={handleWriteClick} loading={isLoading(vars.G1.addr)}/>
+        <Line config={vars.G2} history={history} textsize = 'text-2xl' type={5}/>
+        <Line config={vars.G3} history={history} textsize = 'text-2xl' type={5}/>
+        <Line config={vars.G4} history={history} textsize = 'text-2xl' type={5}/>
 
       </div>
       
@@ -759,7 +825,7 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
 
         <div className={`w-full h-full  flex-[1] border-t-2 border-black border-l-2 border-r-2 flex items-center justify-center`}>
 
-          <Line config={vars.R1} history={history} type = {4} handleWriteClick={handleWriteClick} loading={isLoading(vars.R1.addr)}/>
+          <Line config={vars.R1} history={history} type={4} handleWriteClick={handleWriteClick} loading={isLoading(vars.R1.addr)}/>
 
         </div>
 
@@ -772,8 +838,8 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
         {/* Right  Top*/}
         <div className={`w-full h-full flex-[2] flex flex-col items-center justify-evenly`}>
     
-          <Line config={vars.G6} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G6.addr)} extra ={vars.G12}/>
-          <Line config={vars.G7} history={history} type = {2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G7.addr)} extra ={vars.G13}/>
+          <Line config={vars.G6} history={history} type={2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G6.addr)} extra ={vars.G12}/>
+          <Line config={vars.G7} history={history} type={2} textsize="text-2xl" handleWriteClick={handleWriteClick} loading={isLoading(vars.G7.addr)} extra ={vars.G13}/>
 
         </div>
 
@@ -811,7 +877,7 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
 
     {/* Sensör  tab*/}
     <div className={`w-full h-14 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
-        Sensör Bilgileri
+      SENSÖR BİLGİLERİ
     </div>
             
     {/* Sensör */}
@@ -832,7 +898,7 @@ export default function Dashboard( { setPage , projectTopic , user , projectName
     
     {/* Durum  tab*/}
     <div className={`w-full h-14 ${c1} flex items-center justify-center text-black text-3xl border-2 border-t-0 border-black`}>
-        Durum Bilgileri
+      DURUM BİLGİLERİ
     </div>
             
     {/* Durum */}

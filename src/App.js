@@ -9,7 +9,6 @@ import { useAuth } from "react-oidc-context";
         projectNo: "MEA-2026-01-010",
         deviceNo: "AERO-2600038",
         ahuNo: "AHU-1",
-        mac: "00:00:00:01",
         topic : "tmsig-1/1"
     },
     {
@@ -17,7 +16,6 @@ import { useAuth } from "react-oidc-context";
         projectNo: "MEA-2026-01-011",
         deviceNo: "AERO-2600039",
         ahuNo: "AHU-2",
-        mac: "00:00:00:02",
         topic : "tmsig-1/2"
     },
     {
@@ -25,21 +23,22 @@ import { useAuth } from "react-oidc-context";
         projectNo: "MEA-2026-01-012",
         deviceNo: "AERO-2600040",
         ahuNo: "AHU-3",
-        mac: "00:00:00:03"
+        topic : "tmsig-1/3"
+
     },
     {
         name: "xyz-ford-1",
         projectNo: "MEA-2026-02-001",
         deviceNo: "AERO-2700001",
         ahuNo: "AHU-1",
-        mac: "00:00:00:04"
+        topic : "tmsig-1/4"
     },
     {
         name: "lmn-bmw-1",
         projectNo: "MEA-2026-03-001",
         deviceNo: "AERO-2800001",
         ahuNo: "AHU-1",
-        mac: "00:00:00:05"
+        topic : "tmsig-1/5"
     }
 
   ];
@@ -54,7 +53,7 @@ function App() {
 
   const signOutRedirect = () => {
       const clientId = "132nnak5fjs7880focne3ac7ot";
-      const logoutUri = "<logout uri>";
+      const logoutUri = "https://www.akscon.com";
       const cognitoDomain = "https://eu-central-1igfgickad.auth.eu-central-1.amazoncognito.com";
       window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   };
@@ -109,8 +108,8 @@ function App() {
   if (auth.isAuthenticated) {
     return (
       <>
-        {page === "project" && <Project setPage={setPage} user={userName} visibleProjects = {visibleProjects} setSelectedProject={setSelectedProject}/>}
-        {page === "dashboard" && <Dashboard  setPage={setPage} projectTopic={selectedProject.topic} user={userName} projectName={selectedProject.name} />}
+        {page === "project" && <Project setPage={setPage} user={userName} visibleProjects = {visibleProjects} setSelectedProject={setSelectedProject} onLogout={signOutRedirect}/>}
+        {page === "dashboard" && <Dashboard  setPage={setPage} project={selectedProject} user={userName}/>}
       </>
     );
   }

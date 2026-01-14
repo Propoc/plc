@@ -1,6 +1,6 @@
 
 
-export default function Project( { setPage , user , visibleProjects, setSelectedProject} ) {
+export default function Project( { setPage , user , visibleProjects, setSelectedProject , onLogout} ) {
 
     const c1 = "bg-[#60B649]";
     const c2 = "bg-gray-300";
@@ -15,22 +15,23 @@ export default function Project( { setPage , user , visibleProjects, setSelected
             >
 
                 <div className={`w-full h-full  flex-[1] flex justify-center items-center `}>
-                    <img
-                    src="/per.png"
-                    alt="sun"
-                    className="w-full h-full object-contain "
+                   <img
+                        src="/sch.png"
+                        alt="sch"
+                        className="w-full h-full object-contain "
                     />
                 </div>
 
                 <div className={`w-full h-full  flex-[3] flex justify-center items-center text-5xl `}>
-                    {user}
+                    CİHAZ LİSTESİ
                 </div>
 
                 <div className="w-full h-full flex-[1] flex justify-center items-center text-5xl text-center">
-                    <img
-                    src="/sch.png"
-                    alt="sun"
-                    className="w-full h-full object-contain "
+                   <img
+                        src="/enter.png"
+                        alt="exit"
+                        className="w-full h-full object-contain "
+                        onClick={onLogout}
                     />
                 </div>  
 
@@ -48,22 +49,22 @@ export default function Project( { setPage , user , visibleProjects, setSelected
             </div>
 
             <div
-                className={`w-full h-12 ${c2} flex items-center mb-4 border-red-700 border-2 text-cyan-500`}
+                className={`w-full h-12 ${c2} flex items-center mb-8 border-black border-4  text-black text-4xl`}
             >
-                <div className={`w-full h-full flex-[1] flex items-center justify-center text-3xl`}>
+                <div className={`h-full flex-[1] flex items-center justify-center `}>
                 Proje Adı
                 </div>
-                <div className={`w-full h-full flex-[1] flex items-center justify-center text-3xl border-l-2 border-black`}>
+                <div className={`h-full flex-[1] flex items-center justify-center border-l-4 border-black`}>
                 Proje No
                 </div>
-                <div className={`w-full h-full flex-[1] flex items-center justify-center text-3xl border-l-2 border-black`}>
+                <div className={`h-full flex-[1] flex items-center justify-center border-l-4 border-black`}>
                 Cihaz No
                 </div>
-                <div className={`w-full h-full flex-[1] flex items-center justify-center text-3xl border-l-2 border-black`}>
+                <div className={`h-full flex-[1] flex items-center justify-center border-l-4 border-black`}>
                 Ahu No
                 </div>
-                <div className={`w-full h-full flex-[1] flex items-center justify-center text-3xl border-l-2 border-black`}>
-                Mac Adresi
+                <div className={`h-full flex-[1] flex items-center justify-center border-l-4 border-black`}>
+                Cihaz Adı
                 </div>
             </div>
 
@@ -91,7 +92,7 @@ export default function Project( { setPage , user , visibleProjects, setSelected
                 {p.ahuNo}
                 </div>
                 <div className={`w-full h-full flex-[1] flex items-center justify-center text-black text-3xl border-l-2 border-black`}>
-                {p.mac}
+                {p.topic}
                 </div>
             </div>
             ))}
