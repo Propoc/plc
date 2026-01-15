@@ -88,7 +88,17 @@ const But = function But(
     };
 
     const handleClick = () => {  // Text gönder
-      handleWriteClick(addr,parseInt(text, 10));
+
+    let cleanInput = text.replace(',', '.');
+    let numericValue = parseFloat(cleanInput);
+
+    if (!isNaN(numericValue)) {
+
+      let finalValue = Math.trunc(numericValue * 10);
+      handleWriteClick(addr, finalValue);
+      
+    }
+
       setBubble(false);
       return;
 
@@ -224,8 +234,8 @@ const But = function But(
               type="text"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="border px-2 py-2 rounded text-lg w-28 h-12"
-              placeholder="Değer"
+              className="border px-2 py-2 rounded text-lg w-36 h-12"
+              placeholder="Noktalı Değer"
 
             />
 
