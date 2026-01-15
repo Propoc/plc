@@ -10,7 +10,7 @@ const projects = [
     deviceNo: "AERO-2600038",
     ahuNo: "AHU-1",
     topic: "tmsig-1/1",
-    owner: "perlus"
+    owner: "perlus",
   },
   {
     name: "perlus-nike-2",
@@ -18,7 +18,7 @@ const projects = [
     deviceNo: "AERO-2600038",
     ahuNo: "AHU-2",
     topic: "tmsig-1/2",
-    owner: "perlus"
+    owner: "perlus",
   },
   {
     name: "Ser Mühendislik / world-medicine",
@@ -26,7 +26,7 @@ const projects = [
     deviceNo: "AERO-2600039",
     ahuNo: "AHU-2",
     topic: "tmsig-1/1",
-    owner: "ser"
+    owner: "ser",
   },
   {
     name: "Aero-system kalem vakfı",
@@ -34,7 +34,7 @@ const projects = [
     deviceNo: "AERO-2600040",
     ahuNo: "AHU-3",
     topic: "tmsig-1/1",
-    owner: "aero"
+    owner: "aero",
   },
   {
     name: "Aero-system kuzey ırak",
@@ -42,16 +42,21 @@ const projects = [
     deviceNo: "AERO-2700001",
     ahuNo: "AHU-1",
     topic: "tmsig-1/1",
-    owner: "aero"
+    owner: "aero",
   },
 
 ];
 
 const userAccess = {
-  nemli: ["aero", "perlus"], 
   aksoy: ["aero", "perlus"],
   aero: ["aero"],      
   perlus: ["perlus"],
+};
+
+const userLogo = {
+  aksoy: "/sch.png",
+  aero: "/aero.png",      
+  perlus: "/per.png",
 };
 
 function App() {
@@ -86,23 +91,24 @@ function App() {
     }
   }, [auth.isLoading, auth.isAuthenticated, auth.error]);
 
-  const visibleProjects = useMemo(() => {
-    if (!auth.isAuthenticated || !auth.user?.profile) return [];
-
-    const profile = auth.user.profile;
-    const userName = profile["cognito:username"];
-    
-    const allowedOwners = userAccess[userName] || [];
-
-    return userName === "nemli"
-      ? projects
-      : projects.filter(p => allowedOwners.includes(p.owner));
-
-  }, [auth.isAuthenticated, auth.user, projects]);
-
   const userName = useMemo(() => {
-    return auth.user?.profile?.["cognito:username"];
-  }, [auth.user]);
+    return auth.isAuthenticated ? auth.user?.profile?.["cognito:username"] : null;
+  }, [auth.isAuthenticated, auth.user]);
+
+  const userLogoUrl = useMemo(() => {
+    if (!userName) return "/sun.png";
+    return userLogo[userName] || "/sun.png";
+  }, [userName]);
+
+  const visibleProjects = useMemo(() => {
+    if (!userName) return [];
+    
+    if (userName === "nemli") return projects;
+
+    const allowedOwners = userAccess[userName] || [];
+    return projects.filter(p => allowedOwners.includes(p.owner));
+  }, [userName, projects]);
+
 
 
   if (auth.isLoading) {
@@ -120,8 +126,8 @@ function App() {
   if (auth.isAuthenticated) {
     return (
       <>
-        {page === "project" && <Project setPage={setPage} user={userName} visibleProjects = {visibleProjects} setSelectedProject={setSelectedProject} onLogout={signOutRedirect}/>}
-        {page === "dashboard" && <Dashboard  setPage={setPage} project={selectedProject} user={userName}/>}
+        {page === "project" && <Project setPage={setPage} user={userName} visibleProjects = {visibleProjects} setSelectedProject={setSelectedProject} onLogout={signOutRedirect} logo={userLogoUrl}/>}
+        {page === "dashboard" && <Dashboard  setPage={setPage} project={selectedProject} user={userName} logo={userLogoUrl}/>}
       </>
     );
   }

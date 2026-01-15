@@ -442,7 +442,7 @@ const API_BASE = process.env.REACT_APP_API_BASE ||  "http://localhost:4000";
 const historyLen = 15;
 
 
-export default function Dashboard( { setPage , project , user } ) {
+export default function Dashboard( { setPage , project , user , logo} ) {
 
   const initialHistory = Object.keys(vars).reduce((acc, key) => {
     acc[key] = [];
@@ -704,7 +704,7 @@ export default function Dashboard( { setPage , project , user } ) {
 
       <div className={`h-full flex-[1] flex justify-center items-center `}>
         <img
-          src="/per.png"
+          src={logo}
           alt="sun"
           className="w-full h-full ml-4 object-contain"
         />

@@ -1,6 +1,6 @@
 
 
-export default function Project( { setPage , user , visibleProjects, setSelectedProject , onLogout} ) {
+export default function Project( { setPage , user , visibleProjects, setSelectedProject , onLogout , logo} ) {
 
     const c1 = "bg-[#60B649]";
     const c2 = "bg-gray-300";
@@ -16,7 +16,7 @@ export default function Project( { setPage , user , visibleProjects, setSelected
 
                 <div className={`w-full h-full  flex-[1] flex justify-center items-center `}>
                    <img
-                        src="/per.png"
+                        src={logo}
                         alt="sch"
                         className="w-full h-full object-contain "
                     />
