@@ -3,47 +3,56 @@ import Dashboard from "./Dashboard";
 import Project from "./Project";
 import { useAuth } from "react-oidc-context";
 
-  const projects = [
-    {
-        name: "perlus-nike-1",
-        projectNo: "MEA-2026-01-010",
-        deviceNo: "AERO-2600038",
-        ahuNo: "AHU-1",
-        topic : "tmsig-1/1"
-    },
-    {
-        name: "perlus-nike-2",
-        projectNo: "MEA-2026-01-011",
-        deviceNo: "AERO-2600039",
-        ahuNo: "AHU-2",
-        topic : "tmsig-1/2"
-    },
-    {
-        name: "perlus-nike-3",
-        projectNo: "MEA-2026-01-012",
-        deviceNo: "AERO-2600040",
-        ahuNo: "AHU-3",
-        topic : "tmsig-1/3"
+const projects = [
+  {
+    name: "perlus-nike-1",
+    projectNo: "MEA-2026-01-010",
+    deviceNo: "AERO-2600038",
+    ahuNo: "AHU-1",
+    topic: "tmsig-1/1",
+    owner: "perlus"
+  },
+  {
+    name: "perlus-nike-2",
+    projectNo: "MEA-2026-01-010",
+    deviceNo: "AERO-2600038",
+    ahuNo: "AHU-2",
+    topic: "tmsig-1/2",
+    owner: "perlus"
+  },
+  {
+    name: "Ser Mühendislik / world-medicine",
+    projectNo: "MEA-2026-01-011",
+    deviceNo: "AERO-2600039",
+    ahuNo: "AHU-2",
+    topic: "tmsig-1/1",
+    owner: "ser"
+  },
+  {
+    name: "Aero-system kalem vakfı",
+    projectNo: "MEA-2026-01-012",
+    deviceNo: "AERO-2600040",
+    ahuNo: "AHU-3",
+    topic: "tmsig-1/1",
+    owner: "aero"
+  },
+  {
+    name: "Aero-system kuzey ırak",
+    projectNo: "MEA-2026-02-001",
+    deviceNo: "AERO-2700001",
+    ahuNo: "AHU-1",
+    topic: "tmsig-1/1",
+    owner: "aero"
+  },
 
-    },
-    {
-        name: "xyz-ford-1",
-        projectNo: "MEA-2026-02-001",
-        deviceNo: "AERO-2700001",
-        ahuNo: "AHU-1",
-        topic : "tmsig-1/4"
-    },
-    {
-        name: "lmn-bmw-1",
-        projectNo: "MEA-2026-03-001",
-        deviceNo: "AERO-2800001",
-        ahuNo: "AHU-1",
-        topic : "tmsig-1/5"
-    }
+];
 
-  ];
-
-
+const userAccess = {
+  nemli: ["aero", "perlus"], 
+  aksoy: ["aero", "perlus"],
+  aero: ["aero"],      
+  perlus: ["perlus"],
+};
 
 function App() {
 
@@ -78,17 +87,16 @@ function App() {
   }, [auth.isLoading, auth.isAuthenticated, auth.error]);
 
   const visibleProjects = useMemo(() => {
-  // If not logged in, return an empty list immediately
-  if (!auth.isAuthenticated || !auth.user?.profile) return [];
+    if (!auth.isAuthenticated || !auth.user?.profile) return [];
 
-  const profile = auth.user.profile;
-  const userName = profile["cognito:username"] || profile["preferred_username"];
-  
-  console.log("Memo calculating projects for:", userName);
+    const profile = auth.user.profile;
+    const userName = profile["cognito:username"];
+    
+    const allowedOwners = userAccess[userName] || [];
 
-  return userName === "nemli"
-    ? projects
-    : projects.filter(p => p.name.startsWith(userName));
+    return userName === "nemli"
+      ? projects
+      : projects.filter(p => allowedOwners.includes(p.owner));
 
   }, [auth.isAuthenticated, auth.user, projects]);
 
