@@ -21,7 +21,7 @@ const projects = [
     owner: "perlus",
   },
   {
-    name: "Ser Mühendislik / world-medicine",
+    name: "Ser Müh. World-medicine",
     projectNo: "MEA-2026-01-011",
     deviceNo: "AERO-2600039",
     ahuNo: "AHU-2",
@@ -49,7 +49,7 @@ const projects = [
 
 
 const userAccess = {
-  aksoy: ["aero", "perlus"],
+  aksoy: ["aero", "perlus" , "ser"],
   aero: ["aero"],      
   perlus: ["perlus"],
 };
