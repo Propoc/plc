@@ -773,19 +773,19 @@ export default function Dashboard( { setPage , project , user , logo} ) {
     <div
         className={`w-full h-12 ${c1} flex items-center border-black border-2 text-black text-3xl`}
     >
-        <div className={`h-full flex-[1] flex items-center justify-center `}>
+        <div className={`h-full flex-[3] flex items-center justify-center `}>
         Proje Adı
         </div>
-        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        <div className={`h-full flex-[2] flex items-center justify-center border-l-2 border-black`}>
         Proje No
         </div>
-        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        <div className={`h-full flex-[2] flex items-center justify-center border-l-2 border-black`}>
         Cihaz No
         </div>
         <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
         Ahu No
         </div>
-        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        <div className={`h-full flex-[2] flex items-center justify-center border-l-2 border-black`}>
         Cihaz Adı
         </div>
     </div>
@@ -793,19 +793,19 @@ export default function Dashboard( { setPage , project , user , logo} ) {
     <div
         className={`w-full h-12 ${c1} flex items-center border-black border-l-2 border-r-2 border-b-2 text-black text-3xl`}
     >
-        <div className={`h-full flex-[1] flex items-center justify-center `}>
+        <div className={`h-full flex-[3] flex items-center justify-center `}>
         {project.name}
         </div>
-        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        <div className={`h-full flex-[2] flex items-center justify-center border-l-2 border-black`}>
         {project.projectNo}
         </div>
-        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        <div className={`h-full flex-[2] flex items-center justify-center border-l-2 border-black`}>
         {project.deviceNo}
         </div>
         <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
         {project.ahuNo}
         </div>
-        <div className={`h-full flex-[1] flex items-center justify-center border-l-2 border-black`}>
+        <div className={`h-full flex-[2] flex items-center justify-center border-l-2 border-black`}>
          {project.topic}
         </div>
     </div>
